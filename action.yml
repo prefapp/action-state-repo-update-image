@@ -25,9 +25,7 @@ inputs:
     description: 'Rreviewers of the new PR'
     required: false
     default: ''
-outputs:
-  log: # id of output
-    description: 'Log info'
+
 runs:
   using: 'node12'
   main: 'dist/index.js'
