@@ -10547,8 +10547,11 @@ const inputs = {
 };
 
 function reviewersStringToArray(revStr){
+  revStr = revStr.trim();
   let revArray = revStr.split(",");
-  revArray = revArray.map( str => str.trim());
+
+  revArray = revArray.map( str => str.trim())
+                     .filter( str => str.trim().length > 0);
   return revArray;
 }
 

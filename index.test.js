@@ -126,9 +126,20 @@ test('ghUtils mergePr', async () => {
 });
 
 
-test('ghUtils mergePr', async () => {
+test('reviewers to array', async () => {
   let reviewers = reviewersStringToArray("Rev1, Rev2");
   expect(reviewers).toStrictEqual(["Rev1", "Rev2"]);
+  
+});
+
+test('reviewers length', async () => {
+  expect(reviewersStringToArray(" Rev1, Rev2")).toHaveLength(2);
+  expect(reviewersStringToArray(" Rev1 , Rev2 ")).toHaveLength(2);
+  expect(reviewersStringToArray("Rev1, ")).toHaveLength(1);
+  expect(reviewersStringToArray("Rev1 ")).toHaveLength(1);
+  expect(reviewersStringToArray(" Rev1 ")).toHaveLength(1);
+  expect(reviewersStringToArray(" Rev1 ")).toStrictEqual(["Rev1"]);
+  expect(reviewersStringToArray("  ")).toHaveLength(0);
   
 });
 
