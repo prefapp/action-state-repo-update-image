@@ -1,13 +1,17 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'Create a pull request'
+description: 'Create a pull request in the current repo'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  target_branch:  # id of input
+    description: 'Branch to pull request'
     required: true
-    default: '1000'
+    default: ''
+  secret_token:  # id of input
+    description: 'Github token'
+    required: true
+    default: ''
 outputs:
-  time: # output will be available to future steps
-    description: 'The message to output'
+  log: # id of output
+    description: 'Log info'
 runs:
   using: 'node12'
   main: 'dist/index.js'
