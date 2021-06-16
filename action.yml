@@ -13,6 +13,14 @@ inputs:
     description: 'The title of the PR'
     required: false
     default: 'PR title'
+  application:
+    description: 'Application to read from config.yaml'
+    required: true
+    default: ''
+  environment:
+    description: 'Environment to select from config.yaml'
+    required: true
+    default: ''
 outputs:
   log: # id of output
     description: 'Log info'
