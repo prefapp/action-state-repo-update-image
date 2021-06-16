@@ -1,14 +1,18 @@
 name: 'Create a pull request'
 description: 'Create a pull request in the current repo'
 inputs:
-  target_branch:  # id of input
+  target_branch:
     description: 'Branch to pull request'
     required: true
     default: ''
-  secret_token:  # id of input
+  secret_token:
     description: 'Github token'
     required: true
     default: ''
+  pr_title:
+    description: 'The title of the PR'
+    required: false
+    default: 'PR title'
 outputs:
   log: # id of output
     description: 'Log info'

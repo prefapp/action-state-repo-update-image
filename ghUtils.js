@@ -16,7 +16,7 @@ class ghUtils {
       head: targetBranch,
       title: title
     }
-    console.log("PR INPUTS");
+    console.log("PR INPUTS: ");
     console.log(prInputs);
 
     const ghResponse = await this.octokit.rest.pulls.create(prInputs);

@@ -5,66 +5,30 @@ const ghUtils = require('./ghUtils')
 
 // most @actions toolkit packages have async methods
 
+const inputs = {
+  secret_token: core.getInput('secret_token'),
+  target_branch: core.getInput('target_branch'),
+  pr_title: core.getInput('pr_title')
+};
+
 async function run() {
   try {
     /*core.setOutput('time', new Date().toTimeString());*/
-
-    const inputs = {
-      secret_token: core.getInput('secret_token'),
-      target_branch: core.getInput('target_branch')
-    };
     
     const octokit = github.getOctokit(inputs.secret_token)
     const context = github.context;
 
     let ghClient = new ghUtils(context, octokit);
 
-    // First things should be read yaml to avoid crashing mid-process
+    // First thing should be reading the configfile to avoid crashing mid-process
     //autoMerge = autoMergeFromYaml('./config.yaml',  aplication, enviroment);
 
-    const prNumber = await ghClient.createPr(inputs.target_branch, "NEW PR FROM GH ACTIONS")
+    const prNumber = await ghClient.createPr(inputs.target_branch, inputs.pr_title)
     core.info('Created PR number: ' + prNumber);
     await ghClient.prAddReviewers(prNumber, ["AlbertoFemenias"]);
     core.info('Added reviewers: ' + ["AlbertoFemenias"]);
     await ghClient.mergePr(prNumber);
     core.info('Successfully merged PR number: ' + prNumber);
-
-    //const repoName = context.payload.repository.full_name;
-    //const repoDefaultBranch = context.payload.repository.default_branch;
-    //const repoOwner = context.payload.repository.owner.login;
-
-
-    /*
-    const prInputs = {
-      ...context.repo,
-      head: inputs.target_branch,
-      base: repoDefaultBranch,
-      title: 'PR title'
-    }
-    console.log("PR INPUTS");
-    console.log(prInputs);
-
-    const newPr = await octokit.rest.pulls.create(prInputs);
-    //console.log(newPr);
-
-    const prNumber = newPr.data.number;*/
-
-    
-    /*const prReviewers = await octokit.rest.pulls.requestReviewers({
-      ...context.repo,
-      pull_number: prNumber,
-      reviewers: ["AlbertoFemenias"]
-    });
-
-    //console.log(prReviewers);*/
-    /*
-    const autoMerge = await octokit.rest.pulls.merge({
-      ...context.repo,
-      pull_number: prNumber
-    });
-
-    console.log(autoMerge); */
-
 
   } catch (error) {
     core.setFailed(error.message);
