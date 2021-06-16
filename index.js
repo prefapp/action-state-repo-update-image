@@ -11,7 +11,14 @@ const inputs = {
   pr_title: core.getInput('pr_title'),
   application: core.getInput('application'),
   environment: core.getInput('environment'),
+  reviewers: reviewersStringToArray(core.getInput('reviewers'))
 };
+
+function reviewersStringToArray(revStr){
+  let revArray = revStr.split(",");
+  revArray = revArray.map( str => str.trim());
+  return revArray;
+}
 
 async function run() {
   try {
@@ -27,8 +34,14 @@ async function run() {
 
     const prNumber = await ghClient.createPr(inputs.target_branch, inputs.pr_title)
     core.info('Created PR number: ' + prNumber);
-    await ghClient.prAddReviewers(prNumber, ["AlbertoFemenias"]);
-    core.info('Added reviewers: ' + ["AlbertoFemenias"]);
+    
+    if(inputs.reviewers.length > 0){
+      await ghClient.prAddReviewers(prNumber, inputs.reviewers);
+      core.info('Added reviewers: ' + inputs.reviewers);
+    }else {
+      core.info('No reviewers were added (input reviewers came empty)');
+    }
+    
     if(autoMerge){
       await ghClient.mergePr(prNumber);
       core.info('Successfully merged PR number: ' + prNumber);
@@ -43,3 +56,7 @@ async function run() {
 }
 
 run();
+
+//For testing purposes
+exports.reviewersStringToArray = reviewersStringToArray;
+

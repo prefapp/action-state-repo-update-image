@@ -21,6 +21,10 @@ inputs:
     description: 'Environment to select from config.yaml'
     required: true
     default: ''
+  reviewers:
+    description: 'Rreviewers of the new PR'
+    required: false
+    default: ''
 outputs:
   log: # id of output
     description: 'Log info'

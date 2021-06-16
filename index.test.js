@@ -1,5 +1,7 @@
 const autoMergeFromYaml = require('./autoMergeFromYaml');
 const ghUtils = require('./ghUtils');
+const { reviewersStringToArray } = require('./index');
+
 //const process = require('process');
 //const cp = require('child_process');
 //const path = require('path');
@@ -123,5 +125,15 @@ test('ghUtils mergePr', async () => {
   ,);
 });
 
+
+test('ghUtils mergePr', async () => {
+  let reviewers = reviewersStringToArray("Rev1, Rev2");
+  expect(reviewers).toStrictEqual(["Rev1", "Rev2"]);
+  
+});
+
+
+
+// Test reviewers correct input
 
 
