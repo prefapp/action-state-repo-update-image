@@ -1,0 +1,18 @@
+app1:
+  auto_merge:
+    des: true
+    pre: true
+    pro: false
+  services:
+    - app-server
+    - app-client
+    - app-api
+
+app2:
+  auto_merge:
+    des: true
+    pre: true
+    pro: false
+  services:
+    - proxy
+    - dns
