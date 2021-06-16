@@ -9,7 +9,7 @@ class ghUtils {
   constructor(context, octokit) {
     this.context = context;
     this.octokit = octokit;
-    this.repodefaultBranch = context.payload.repository.default_branch;
+    this.repoDefaultBranch = context.payload.repository.default_branch;
     this.repoName = context.payload.repository.name;
     this.repoOwner = context.payload.repository.owner.login;
   }
@@ -6400,12 +6400,14 @@ async function run() {
 
     let ghClient = new ghUtils(context, octokit);
 
-    const prNumber = ghClient.createPr(inputs.target_branch, "NEW PR FROM GH ACTIONS")
-    core.info('Created PR number: ' + prNumber);
-    ghClient.prAddReviewers(prNumber, ["AlbertoFemenias"]);
-    core.info('Added reviewers: ' + ["AlbertoFemenias"]);
+    // First things should be read yaml to avoid crashing mid-process
     //autoMerge = autoMergeFromYaml('./config.yaml',  aplication, enviroment);
-    ghClient.mergePr(prNumber);
+
+    const prNumber = await ghClient.createPr(inputs.target_branch, "NEW PR FROM GH ACTIONS")
+    core.info('Created PR number: ' + prNumber);
+    await ghClient.prAddReviewers(prNumber, ["AlbertoFemenias"]);
+    core.info('Added reviewers: ' + ["AlbertoFemenias"]);
+    await ghClient.mergePr(prNumber);
     core.info('Successfully merged PR number: ' + prNumber);
 
     //const repoName = context.payload.repository.full_name;

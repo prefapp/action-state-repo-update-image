@@ -3,7 +3,7 @@ class ghUtils {
   constructor(context, octokit) {
     this.context = context;
     this.octokit = octokit;
-    this.repodefaultBranch = context.payload.repository.default_branch;
+    this.repoDefaultBranch = context.payload.repository.default_branch;
     this.repoName = context.payload.repository.name;
     this.repoOwner = context.payload.repository.owner.login;
   }
