@@ -8,13 +8,14 @@ class ghUtils {
     this.repoOwner = context.payload.repository.owner.login;
   }
 
-  async createPr(targetBranch, title) {
+  async createPr(targetBranch, title, body) {
     const prInputs = {
       owner: this.repoOwner,
       repo: this.repoName,
       base: this.repoDefaultBranch,
       head: targetBranch,
-      title: title
+      title: title,
+      body: body
     }
     console.log("PR INPUTS: ");
     console.log(prInputs);

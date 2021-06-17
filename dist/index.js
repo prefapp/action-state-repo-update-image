@@ -11559,13 +11559,14 @@ class ghUtils {
     this.repoOwner = context.payload.repository.owner.login;
   }
 
-  async createPr(targetBranch, title) {
+  async createPr(targetBranch, title, body) {
     const prInputs = {
       owner: this.repoOwner,
       repo: this.repoName,
       base: this.repoDefaultBranch,
       head: targetBranch,
-      title: title
+      title: title,
+      body: body
     }
     console.log("PR INPUTS: ");
     console.log(prInputs);
@@ -11927,6 +11928,8 @@ async function run() {
       inputs.branch_name = `automated/update-image-${inputs.application}-${inputs.environment}`;
     
     //CREATE BRANCH
+    await exec.exec("git config --global user.name github-actions");
+    await exec.exec("git config --global user.email github-actions@github.com");
     await exec.exec("git checkout -b " + inputs.branch_name);
 
     //MODIFY SERVICES IMAGE
@@ -11938,7 +11941,7 @@ async function run() {
     await exec.exec("git push origin" + inputs.branch_name);
 
     //CREATE PULL REQUEST
-    const prNumber = await ghClient.createPr(inputs.branch_name, inputs.pr_title)
+    const prNumber = await ghClient.createPr(inputs.branch_name, inputs.pr_title, inputs.pr_body)
     core.info('Created PR number: ' + prNumber);
     
 

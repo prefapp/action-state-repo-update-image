@@ -38,7 +38,7 @@ test('ghUtils prCreate constructor', () => {
 
 test('ghUtils prCreate', async () => {
   let ghClient = new ghUtils(context, octokit);
-  const prNumber = await ghClient.createPr("feature/new-image", "pr title");
+  const prNumber = await ghClient.createPr("feature/new-image", "pr title", "pr body");
   expect(prNumber).toBe(42);
   expect(octokit.rest.pulls.create).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -46,7 +46,8 @@ test('ghUtils prCreate', async () => {
                               repo: "repo_name",
                               base: "rama_default",
                               head: "feature/new-image",
-                              title: "pr title"
+                              title: "pr title",
+                              body: "pr body"
                             })
   ,);
 });
