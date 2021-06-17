@@ -1,17 +1,33 @@
-name: 'Create a pull request'
-description: 'Create a pull request in the current repo'
+name: 'Update image and create a pull request'
+description: >
+  Using state repo structure it updates an image value and the creates 
+  a pull request in the same state repo
 inputs:
-  target_branch:  # id of input
+  target_branch:
     description: 'Branch to pull request'
     required: true
     default: ''
-  secret_token:  # id of input
+  secret_token:
     description: 'Github token'
     required: true
     default: ''
-outputs:
-  log: # id of output
-    description: 'Log info'
+  pr_title:
+    description: 'The title of the PR'
+    required: false
+    default: 'PR title'
+  application:
+    description: 'Application to read from config.yaml'
+    required: true
+    default: ''
+  environment:
+    description: 'Environment to select from config.yaml'
+    required: true
+    default: ''
+  reviewers:
+    description: 'Rreviewers of the new PR'
+    required: false
+    default: ''
+
 runs:
   using: 'node12'
   main: 'dist/index.js'

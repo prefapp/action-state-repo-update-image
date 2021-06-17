@@ -1,10 +1,10 @@
-# Generate pull request based on state repo config - Prefapp JavaScript Action
+# Update image and generate pull request based on state repo config - Prefapp JavaScript Action
 
 <p align="center">
   <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
 </p>
 
-This action creates a pull request and adds reviewers.
+This action updates image values un the state repo. It then creates a pull request and adds reviewers.
 Reading the state_repo/config.yaml, determines if the PR should be automerged or not.
 
 This project includes tests, linting, a validation workflow, publishing, and versioning guidance.
@@ -79,7 +79,7 @@ git add dist
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 
 
-## Usage
+## Usage DEPRECATED
 
 You can now consume the action by referencing the v0 branch
 

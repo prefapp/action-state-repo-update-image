@@ -1,56 +1,57 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const ghUtils = require('./ghUtils');
+const autoMergeFromYaml = require('./autoMergeFromYaml');
 
 // most @actions toolkit packages have async methods
+
+const inputs = {
+  secret_token: core.getInput('secret_token'),
+  target_branch: core.getInput('target_branch'),
+  pr_title: core.getInput('pr_title'),
+  application: core.getInput('application'),
+  environment: core.getInput('environment'),
+  reviewers: reviewersStringToArray(core.getInput('reviewers'))
+};
+
+function reviewersStringToArray(revStr){
+  revStr = revStr.trim();
+  let revArray = revStr.split(",");
+
+  revArray = revArray.map( str => str.trim())
+                     .filter( str => str.trim().length > 0);
+  return revArray;
+}
+
 async function run() {
   try {
-    /*const ms = core.getInput('milliseconds');
-    core.info(`Waiting ${ms} milliseconds ...`);
-
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
-
-    core.setOutput('time', new Date().toTimeString());*/
-
-    const myToken = core.getInput('secret_token');
-    const targetBranch = core.getInput('target_branch');
-    const octokit = github.getOctokit(myToken)
+    /*core.setOutput('time', new Date().toTimeString());*/
+    
+    const octokit = github.getOctokit(inputs.secret_token)
     const context = github.context;
 
-    const repoName = context.payload.repository.full_name;
-    const repoDefaultBranch = context.payload.repository.default_branch;
-    const repoOwner = context.payload.repository.owner.login;
+    let ghClient = new ghUtils(context, octokit);
 
-    const prInputs = {
-      ...context.repo,
-      head: targetBranch,
-      base: repoDefaultBranch,
-      title: 'PR title'
+    // First thing should be reading the configfile to avoid crashing mid-process
+    const autoMerge = autoMergeFromYaml('./config.yaml',  inputs.application, inputs.environment);
+
+    const prNumber = await ghClient.createPr(inputs.target_branch, inputs.pr_title)
+    core.info('Created PR number: ' + prNumber);
+    
+    if(inputs.reviewers.length > 0){
+      await ghClient.prAddReviewers(prNumber, inputs.reviewers);
+      core.info('Added reviewers: ' + inputs.reviewers);
+    }else {
+      core.info('No reviewers were added (input reviewers came empty)');
     }
-    console.log("PR INPUTS");
-    console.log(prInputs);
-
-    const newPr = await octokit.rest.pulls.create(prInputs);
-    //console.log(newPr);
-
-    prNumber = newPr.data.number;
-
-    const prReviewers = await octokit.rest.pulls.requestReviewers({
-      ...context.repo,
-      pull_number: prNumber,
-      reviewers: ["AlbertoFemenias"]
-    });
-
-    //console.log(prReviewers);
-
-    const autoMerge = await octokit.rest.pulls.merge({
-      ...context.repo,
-      pull_number: prNumber
-    });
-
-    console.log(autoMerge); 
-
+    
+    if(autoMerge){
+      await ghClient.mergePr(prNumber);
+      core.info('Successfully merged PR number: ' + prNumber);
+    }else{
+      core.info('Enviroment ' + inputs.environment + ' does NOT allow automerge!');
+    }
+    
 
   } catch (error) {
     core.setFailed(error.message);
@@ -58,3 +59,7 @@ async function run() {
 }
 
 run();
+
+//For testing purposes
+exports.reviewersStringToArray = reviewersStringToArray;
+
