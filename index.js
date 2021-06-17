@@ -67,7 +67,7 @@ async function run() {
     //PUSH CHANGES TO ORIGIN
     await exec.exec("git add .");
     await exec.exec('git commit -m "Image values updated"');
-    await exec.exec("git push origin" + inputs.branch_name);
+    await exec.exec("git push origin " + inputs.branch_name);
 
     //CREATE PULL REQUEST
     const prNumber = await ghClient.createPr(inputs.branch_name, inputs.pr_title, inputs.pr_body)
