@@ -1,43 +1,75 @@
 const core = require('@actions/core');
+const exec = require('@actions/exec');
 const github = require('@actions/github');
-const ghUtils = require('./ghUtils');
-const autoMergeFromYaml = require('./autoMergeFromYaml');
+const ghUtils = require('./utils/ghUtils');
+const yamlUtils = require('./utils/yamlUtils');
+const inputUtils = require('./utils/inputUtils');
 
 // most @actions toolkit packages have async methods
+if (!process.env.GITHUB_TOKEN) {
+  console.log("GITHUB_TOKEN environment variable not set");
+  process.exit(1);
+}
 
 const inputs = {
-  secret_token: core.getInput('secret_token'),
-  target_branch: core.getInput('target_branch'),
-  pr_title: core.getInput('pr_title'),
+  //mandatory
   application: core.getInput('application'),
   environment: core.getInput('environment'),
-  reviewers: reviewersStringToArray(core.getInput('reviewers'))
+  services: inputUtils.commaStringToArray(core.getInput('services')),
+  image: core.getInput('image'),
+  //optional
+  reviewers: inputUtils.commaStringToArray(core.getInput('reviewers')),
+  pr_title: core.getInput('pr_title'),
+  pr_body: core.getInput('pr_body'),
+  branch_name: core.getInput('branch_name'),
 };
-
-function reviewersStringToArray(revStr){
-  revStr = revStr.trim();
-  let revArray = revStr.split(",");
-
-  revArray = revArray.map( str => str.trim())
-                     .filter( str => str.trim().length > 0);
-  return revArray;
-}
 
 async function run() {
   try {
-    /*core.setOutput('time', new Date().toTimeString());*/
-    
-    const octokit = github.getOctokit(inputs.secret_token)
+
+    //FIRST CHECK THAT THE IMAGE FILES EXIST
+
+    const SECRET_TOKEN = process.env.GITHUB_TOKEN;
+    const octokit = github.getOctokit(SECRET_TOKEN);
     const context = github.context;
 
     let ghClient = new ghUtils(context, octokit);
 
-    // First thing should be reading the configfile to avoid crashing mid-process
-    const autoMerge = autoMergeFromYaml('./config.yaml',  inputs.application, inputs.environment);
+    // DETERMINE AUTOMERGE First thing should be reading the configfile to know if automerge is available
+    let autoMerge;
+    try {
+      autoMerge = yamlUtils.determineAutoMerge('./config.yaml',  inputs.application, inputs.environment);
+    } catch (e) {
+      core.info('Problem reading ./config.yaml. Setting automerge to false. Error: ' + e);
+      autoMerge = false;
+    }
+    
+    //CALCULATE NAMES
+    if(inputs.pr_title == "")
+      inputs.pr_title = `Updated image ${inputs.image} in application ${inputs.application} - ENV: ${inputs.environment}`; 
+    if(inputs.pr_body == "")
+      inputs.pr_body = `Updated image ${inputs.image} for the services ${core.getInput('services')}
+                        in application ${inputs.application} - ENV: ${inputs.environment}`;
+    if(inputs.branch_name == "")
+      inputs.branch_name = `automated/update-image-${inputs.application}-${inputs.environment}`;
+    
+    //CREATE BRANCH
+    await exec.exec("git checkout -b " + inputs.branch_name);
 
-    const prNumber = await ghClient.createPr(inputs.target_branch, inputs.pr_title)
+    //MODIFY SERVICES IMAGE
+    yamlUtils.modifyServicesImage(inputs.application, inputs.environment, inputs.services, inputs.image);
+
+    //PUSH CHANGES TO ORIGIN
+    await exec.exec("git add .");
+    await exec.exec('git commit -m "Image values updated"');
+    await exec.exec("git push origin" + inputs.branch_name);
+
+    //CREATE PULL REQUEST
+    const prNumber = await ghClient.createPr(inputs.branch_name, inputs.pr_title)
     core.info('Created PR number: ' + prNumber);
     
+
+    //ADD REVIEWERS
     if(inputs.reviewers.length > 0){
       await ghClient.prAddReviewers(prNumber, inputs.reviewers);
       core.info('Added reviewers: ' + inputs.reviewers);
@@ -45,6 +77,7 @@ async function run() {
       core.info('No reviewers were added (input reviewers came empty)');
     }
     
+    //TRY TO MERGE
     if(autoMerge){
       await ghClient.mergePr(prNumber);
       core.info('Successfully merged PR number: ' + prNumber);
@@ -59,7 +92,4 @@ async function run() {
 }
 
 run();
-
-//For testing purposes
-exports.reviewersStringToArray = reviewersStringToArray;
 

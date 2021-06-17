@@ -1,55 +1,7 @@
-const autoMergeFromYaml = require('./autoMergeFromYaml');
-const ghUtils = require('./ghUtils');
-const { reviewersStringToArray } = require('./index');
-
-//const process = require('process');
-//const cp = require('child_process');
-//const path = require('path');
-//var fs = require('fs');
-
-/*
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-  process.env['INPUT_MILLISECONDS'] = 500;
-  const ip = path.join(__dirname, 'index.js');
-  console.log(cp.execSync(`node ${ip}`, {env: process.env}).toString());
-})
-*/
+const ghUtils = require('../utils/ghUtils');
 
 
-// Test read config yaml autoMergeFromYaml
-test('autoMergeFromYaml yaml not found', () => {
-  expect(() => {
-    autoMergeFromYaml('./foo/bar.yaml', "app1", "des")
-  }).toThrow('Error trying to read configFile: ');
-});
-
-test('autoMergeFromYaml invalid enviroment', () => {
-  expect(() => {
-    autoMergeFromYaml('./fixtures/config.yaml', "app2", "dev")
-  }).toThrow("Enviroment dev not in [des, pre, pro]");
-});
-
-test('autoMergeFromYaml invalid enviroment', () => {
-  expect(() => {
-    autoMergeFromYaml('./fixtures/config.yaml', "app3", "des")
-  }).toThrow("Application not found: app3");
-});
-
-test('autoMergeFromYaml correct execution', () => {
-  //console.log(fs.readdirSync('./fixtures'));
-  const autoMergeDes = autoMergeFromYaml('./fixtures/config.yaml', "app1", "des");
-  expect(autoMergeDes).toBe(true);
-
-  const autoMergePre = autoMergeFromYaml('./fixtures/config.yaml', "app2", "pre");
-  expect(autoMergePre).toBe(true);
-
-  const autoMergePro = autoMergeFromYaml('./fixtures/config.yaml', "app1", "pro");
-  expect(autoMergePro).toBe(false);
-});
-
-
-// Test ghUtils
+// Mocks
 const context = {
   payload: {
     repository: {
@@ -71,6 +23,7 @@ let octokit = {
     }
   }
 }
+
 
 test('ghUtils prCreate constructor', () => {
   let ghClient = new ghUtils(context, "octokit");
@@ -124,27 +77,3 @@ test('ghUtils mergePr', async () => {
                             })
   ,);
 });
-
-
-test('reviewers to array', async () => {
-  let reviewers = reviewersStringToArray("Rev1, Rev2");
-  expect(reviewers).toStrictEqual(["Rev1", "Rev2"]);
-  
-});
-
-test('reviewers length', async () => {
-  expect(reviewersStringToArray(" Rev1, Rev2")).toHaveLength(2);
-  expect(reviewersStringToArray(" Rev1 , Rev2 ")).toHaveLength(2);
-  expect(reviewersStringToArray("Rev1, ")).toHaveLength(1);
-  expect(reviewersStringToArray("Rev1 ")).toHaveLength(1);
-  expect(reviewersStringToArray(" Rev1 ")).toHaveLength(1);
-  expect(reviewersStringToArray(" Rev1 ")).toStrictEqual(["Rev1"]);
-  expect(reviewersStringToArray("  ")).toHaveLength(0);
-  
-});
-
-
-
-// Test reviewers correct input
-
-

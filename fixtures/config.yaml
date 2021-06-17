@@ -19,7 +19,7 @@ app2:
 
 app3:
   auto_merge:
-    dev: true
+    dev: false
     pre: true
     pro: false
   services:
