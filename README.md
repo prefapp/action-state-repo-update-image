@@ -85,12 +85,20 @@ You can now consume the action by referencing the v0 branch
 
 ```yaml
 steps:
-  - name: Get repo context
-    id: gh
-    uses: prefapp/action-state-repo-generate-pr@v0
-    with:
-      target_branch: ${{ github.event.inputs.branch }}
-      secret_token: ${{ secrets.GITHUB_TOKEN }}
+  - uses: actions/checkout@v2  #NECESSARY
+  - name: Update image  
+      uses: prefapp/action-state-repo-update-image@feature/v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #NECESSARY
+      with:
+        application: appfoo
+        environment: dev/pre/pro
+        services: svc123
+        image: image:new
+        reviewers: juana, suhermana #OPTIONAL
+        pr_title: PR title #OPTIONAL (not recomended) 
+        pr_body: PR body #OPTIONAL (not recomended) 
+        branch_name: automated/update-image #OPTIONAL
 ```
 
 See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
