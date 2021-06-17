@@ -11918,12 +11918,7 @@ async function run() {
       autoMerge = false;
     }
     
-    //CALCULATE NAMES
-    if(inputs.pr_title == "")
-      inputs.pr_title = `Updated image ${inputs.image} in application ${inputs.application} - ENV: ${inputs.environment}`; 
-    if(inputs.pr_body == "")
-      inputs.pr_body = `Updated image ${inputs.image} for the services ${core.getInput('services')}
-                        in application ${inputs.application} - ENV: ${inputs.environment}`;
+    //CALCULATE BRANCH NAME
     if(inputs.branch_name == "")
       inputs.branch_name = `automated/update-image-${inputs.application}-${inputs.environment}`;
     
@@ -11933,12 +11928,19 @@ async function run() {
     await exec.exec("git checkout -b " + inputs.branch_name);
 
     //MODIFY SERVICES IMAGE
-    yamlUtils.modifyServicesImage(inputs.application, inputs.environment, inputs.services, inputs.image);
+    const oldImage = yamlUtils.modifyServicesImage(inputs.application, inputs.environment, inputs.services, inputs.image);
 
     //PUSH CHANGES TO ORIGIN
     await exec.exec("git add .");
     await exec.exec('git commit -m "Image values updated"');
     await exec.exec("git push origin " + inputs.branch_name);
+
+    //CALCULATE PR VALUES
+    if(inputs.pr_title == "")
+      inputs.pr_title = `Updated image ${inputs.image} in application ${inputs.application} - ENV: ${inputs.environment}`; 
+    if(inputs.pr_body == "")
+      inputs.pr_body = `Updated image from: ${oldImage} to: ${inputs.image} for the services: ${core.getInput('services')}
+                        in application: ${inputs.application} at environment: ${inputs.environment}`;
 
     //CREATE PULL REQUEST
     const prNumber = await ghClient.createPr(inputs.branch_name, inputs.pr_title, inputs.pr_body)
