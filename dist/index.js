@@ -11905,6 +11905,9 @@ async function run() {
 
     let ghClient = new ghUtils(context, octokit);
 
+    console.log("DEBUGG");
+    console.log(inputs);
+
     // DETERMINE AUTOMERGE First thing should be reading the configfile to know if automerge is available
     let autoMerge;
     try {
