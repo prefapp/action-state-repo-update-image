@@ -11679,13 +11679,16 @@ class yamlUtils {
   }
 
   static modifyServicesImage(application, environment, services, newImage) {
+    let oldImages;
     if (services.length == 0){
       throw new Error("Error: services array is empty, imposible to modify image!");
     }
 
     for (let i = 0; i < services.length; i++){
-      yamlUtils.modifyImage(application, environment, services[i], newImage);
+      oldImages = yamlUtils.modifyImage(application, environment, services[i], newImage);
     }
+
+    return oldImages;
 
   }
 }
@@ -11937,7 +11940,7 @@ async function run() {
 
     //CALCULATE PR VALUES
     if(inputs.pr_title == "")
-      inputs.pr_title = `Updated image ${inputs.image} in application ${inputs.application} - ENV: ${inputs.environment}`; 
+      inputs.pr_title = `Updated image ${inputs.image} in application: ${inputs.application} - env: ${inputs.environment}`; 
     if(inputs.pr_body == "")
       inputs.pr_body = `Updated image from: ${oldImage} to: ${inputs.image} for the services: ${core.getInput('services')}
                         in application: ${inputs.application} at environment: ${inputs.environment}`;

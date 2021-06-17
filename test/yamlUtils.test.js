@@ -71,16 +71,18 @@ test('modifyImage failure', () => {
 test('modifyServicesImage correct execution', () => {
   // you need 2 changes of each to make sure it changes
   const services = ["app-server", "app-api"];
-  const newImage = "bar/common:bar";
-  yamlUtils.modifyServicesImage("fixtures/app1", "pre", services, newImage);
+  const newImage = "bar/common:pre";
+  const recievedImage1 = yamlUtils.modifyServicesImage("fixtures/app1", "pre", services, newImage);
+  expect(recievedImage1).toBe("foo/common:pre");
   const modImagesDesApp1 = yamlUtils.loadYaml('./fixtures/app1/pre/images.yaml');
 
   expect(modImagesDesApp1["app-client"]["image"]).toBe("foo/client:pre");
-  expect(modImagesDesApp1["app-server"]["image"]).toBe("bar/common:bar");
-  expect(modImagesDesApp1["app-api"]["image"]).toBe("bar/common:bar");
+  expect(modImagesDesApp1["app-server"]["image"]).toBe("bar/common:pre");
+  expect(modImagesDesApp1["app-api"]["image"]).toBe("bar/common:pre");
 
-  const oldImage = "foo/common:pre";
-  yamlUtils.modifyServicesImage("fixtures/app1", "pre", services, oldImage);
+  const restoreImage = "foo/common:pre";
+  const recievedImage2 = yamlUtils.modifyServicesImage("fixtures/app1", "pre", services, restoreImage);
+  expect(recievedImage2).toBe("bar/common:pre");
   const iemagesDesApp1Restore = yamlUtils.loadYaml('./fixtures/app1/pre/images.yaml');
 
   expect(iemagesDesApp1Restore["app-client"]["image"]).toBe("foo/client:pre");
