@@ -1,5 +1,3 @@
-const sha1 = require('sha1');
-
 class inputUtils {
 
   static commaStringToArray(commaStr){
@@ -13,8 +11,9 @@ class inputUtils {
 
   static createBranchName(app, env){
     
-    const rndSha = sha1(Date.now()).slice(0, 6);
-    return `automated/update-image-${app}-${env}-${rndSha}`;
+    const timestamp = new Date().getTime();
+    //const rndSha = sha1(Date.now()).slice(0, 6);
+    return `automated/update-image-${app}-${env}-${timestamp}`;
     
   }
 
