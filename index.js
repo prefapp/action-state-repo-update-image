@@ -41,13 +41,11 @@ async function run() {
     
     //CALCULATE BRANCH NAME
     if(inputs.branch_name == "")
-      inputs.branch_name = `automated/update-image-${inputs.application}-${inputs.environment}`;
-    
+    inputs.branch_name = inputUtils.createBranchName(inputs.application, inputs.environment);
     //CREATE BRANCH
     await exec.exec("git config --global user.name github-actions");
     await exec.exec("git config --global user.email github-actions@github.com");
     await exec.exec("git checkout -b " + inputs.branch_name);
-    await exec.exec("git pull origin " + inputs.branch_name + " --rebase");
 
     //MODIFY SERVICES IMAGE
     const oldImage = yamlUtils.modifyServicesImage(inputs.application, inputs.environment, inputs.services, inputs.image);
