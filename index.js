@@ -47,20 +47,21 @@ async function run() {
     await exec.exec("git config --global user.email github-actions@github.com");
     await exec.exec("git checkout -b " + inputs.branch_name);
 
+    console.log("PRE MODIFY IMG");
     //MODIFY SERVICES IMAGE
     const oldImage = yamlUtils.modifyServicesImage(inputs.application, inputs.environment, inputs.services, inputs.image);
-
+    console.log("PRE GIT ADD");
     //PUSH CHANGES TO ORIGIN
     await exec.exec("git add .");
     await exec.exec('git commit -m "Image values updated"');
-    core.info("PRE PUSH");
+    console.log("PRE PUSH");
     try{
       await exec.exec("git push origin " + inputs.branch_name);
     }catch(e){
-      core.info("ERROR TRYING TO PUSH CHANGES!! (maybe no change happened?)");
+      console.log("ERROR TRYING TO PUSH CHANGES!! (maybe no change happened?)");
       throw e; 
     }
-    core.info("AFTER PUSH");
+    console.log("AFTER PUSH");
 
 
     //CALCULATE PR VALUES
