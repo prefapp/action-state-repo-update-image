@@ -1,10 +1,10 @@
-# Generate pull request based on state repo config - Prefapp JavaScript Action
+# Update image and generate pull request based on state repo config - Prefapp JavaScript Action
 
 <p align="center">
   <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
 </p>
 
-This action creates a pull request and adds reviewers.
+This action updates image values un the state repo. It then creates a pull request and adds reviewers.
 Reading the state_repo/config.yaml, determines if the PR should be automerged or not.
 
 This project includes tests, linting, a validation workflow, publishing, and versioning guidance.
@@ -85,12 +85,18 @@ You can now consume the action by referencing the v0 branch
 
 ```yaml
 steps:
-  - name: Get repo context
-    id: gh
-    uses: prefapp/action-state-repo-generate-pr@v0
-    with:
-      target_branch: ${{ github.event.inputs.branch }}
-      secret_token: ${{ secrets.GITHUB_TOKEN }}
+  - uses: actions/checkout@v2  #NECESSARY
+  - name: Update image  
+      uses: prefapp/action-state-repo-update-image@feature/v2
+      with:
+        application: appfoo
+        environment: dev/pre/pro
+        services: svc123
+        image: image:new
+        reviewers: juana, suhermana #OPTIONAL
+        pr_title: PR title #OPTIONAL (not recomended) 
+        pr_body: PR body #OPTIONAL (not recomended) 
+        branch_name: automated/update-image #OPTIONAL
 ```
 
 See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:

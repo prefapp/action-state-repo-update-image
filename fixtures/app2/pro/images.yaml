@@ -1,0 +1,4 @@
+proxy:
+  image: foo/proxy:pro
+dns:
+  image: foo/dns:pro
