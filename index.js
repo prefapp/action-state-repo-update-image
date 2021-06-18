@@ -53,7 +53,13 @@ async function run() {
     //PUSH CHANGES TO ORIGIN
     await exec.exec("git add .");
     await exec.exec('git commit -m "Image values updated"');
-    await exec.exec("git push origin " + inputs.branch_name);
+    try{
+      await exec.exec("git push origin " + inputs.branch_name);
+    }catch(e){
+      core.info("ERROR TRYING TO PUSH CHANGES!! (maybe no change happened?)");
+      throw e; 
+    }
+
 
     //CALCULATE PR VALUES
     if(inputs.pr_title == "")
