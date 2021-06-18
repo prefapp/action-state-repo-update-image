@@ -79,7 +79,7 @@ git add dist
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 
 
-## Usage DEPRECATED
+## Usage
 
 You can now consume the action by referencing the v0 branch
 
