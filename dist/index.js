@@ -12150,7 +12150,7 @@ async function run() {
 
     let ghClient = new ghUtils(context, octokit);
 
-    console.log("DEBUGG");
+    console.log("ACTION INPUTS:");
     console.log(inputs);
 
     
@@ -12168,12 +12168,14 @@ async function run() {
     //PUSH CHANGES TO ORIGIN
     await exec.exec("git add .");
     await exec.exec('git commit -m "Image values updated"');
+    core.info("PRE PUSH");
     try{
       await exec.exec("git push origin " + inputs.branch_name);
     }catch(e){
       core.info("ERROR TRYING TO PUSH CHANGES!! (maybe no change happened?)");
       throw e; 
     }
+    core.info("AFTER PUSH");
 
 
     //CALCULATE PR VALUES
