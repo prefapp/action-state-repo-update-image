@@ -11912,14 +11912,6 @@ async function run() {
     console.log("DEBUGG");
     console.log(inputs);
 
-    // DETERMINE AUTOMERGE First thing should be reading the configfile to know if automerge is available
-    let autoMerge;
-    try {
-      autoMerge = yamlUtils.determineAutoMerge('./config.yaml',  inputs.application, inputs.environment);
-    } catch (e) {
-      core.info('Problem reading ./config.yaml. Setting automerge to false. Error: ' + e);
-      autoMerge = false;
-    }
     
     //CALCULATE BRANCH NAME
     if(inputs.branch_name == "")
@@ -11945,6 +11937,17 @@ async function run() {
       inputs.pr_body = `Updated image from: ${oldImage} to: ${inputs.image} for the services: ${core.getInput('services')}
                         in application: ${inputs.application} at environment: ${inputs.environment}`;
 
+    // DETERMINE AUTOMERGE
+    let autoMerge;
+    try {
+      autoMerge = yamlUtils.determineAutoMerge('./config.yaml',  inputs.application, inputs.environment);
+    } catch (e) {
+      const errorMsg = 'Problem reading ./config.yaml. Setting automerge to false. ' + e
+      core.info(errorMsg);
+      autoMerge = false;
+      inputs.pr_body += errorMsg; //Show the problem in the pr body 
+    }
+
     //CREATE PULL REQUEST
     const prNumber = await ghClient.createPr(inputs.branch_name, inputs.pr_title, inputs.pr_body)
     core.info('Created PR number: ' + prNumber);
@@ -11957,6 +11960,7 @@ async function run() {
     }else {
       core.info('No reviewers were added (input reviewers came empty)');
     }
+
     
     //TRY TO MERGE
     if(autoMerge){
