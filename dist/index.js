@@ -11945,7 +11945,7 @@ async function run() {
       const errorMsg = 'Problem reading ./config.yaml. Setting automerge to false. ' + e
       core.info(errorMsg);
       autoMerge = false;
-      inputs.pr_body += errorMsg; //Show the problem in the pr body 
+      inputs.pr_body += ".  " + errorMsg; //Show the problem in the pr body 
     }
 
     //CREATE PULL REQUEST
