@@ -12121,10 +12121,6 @@ const yamlUtils = __nccwpck_require__(3520);
 const inputUtils = __nccwpck_require__(8858);
 
 // most @actions toolkit packages have async methods
-if (!process.env.GITHUB_TOKEN) {
-  console.log("GITHUB_TOKEN environment variable not set");
-  process.exit(1);
-}
 
 const inputs = {
   //mandatory
@@ -12144,7 +12140,7 @@ async function run() {
 
     //FIRST CHECK THAT THE IMAGE FILES EXIST
 
-    const SECRET_TOKEN = process.env.GITHUB_TOKEN;
+    const SECRET_TOKEN = core.getInput('token');
     const octokit = github.getOctokit(SECRET_TOKEN);
     const context = github.context;
 

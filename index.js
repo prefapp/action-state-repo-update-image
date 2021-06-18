@@ -6,10 +6,6 @@ const yamlUtils = require('./utils/yamlUtils');
 const inputUtils = require('./utils/inputUtils');
 
 // most @actions toolkit packages have async methods
-if (!process.env.GITHUB_TOKEN) {
-  console.log("GITHUB_TOKEN environment variable not set");
-  process.exit(1);
-}
 
 const inputs = {
   //mandatory
@@ -29,7 +25,7 @@ async function run() {
 
     //FIRST CHECK THAT THE IMAGE FILES EXIST
 
-    const SECRET_TOKEN = process.env.GITHUB_TOKEN;
+    const SECRET_TOKEN = core.getInput('token');
     const octokit = github.getOctokit(SECRET_TOKEN);
     const context = github.context;
 

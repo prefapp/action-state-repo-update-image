@@ -88,8 +88,6 @@ steps:
   - uses: actions/checkout@v2  #NECESSARY
   - name: Update image  
       uses: prefapp/action-state-repo-update-image@feature/v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #NECESSARY
       with:
         application: appfoo
         environment: dev/pre/pro
