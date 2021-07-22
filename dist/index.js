@@ -11642,15 +11642,14 @@ const fs   = __nccwpck_require__(5747);
 
 class yamlUtils {
 
-  static determineAutoMerge(configFile, application, environment) {
-    // Reead config.yaml or throw exception
-    let configDoc = yamlUtils.loadYaml(configFile);
+  static determineAutoMerge(tenant, application, environment) {
+    
+    const path = "./" + tenant + "/" + application + "/" + environment + "/"
 
-    const autoMerge = configDoc[application]["auto_merge"][environment];
-    if (autoMerge != null) {
-      return autoMerge;
+    if (fs.existsSync(path)) {
+      return (fs.existsSync(path + "AUTO_MERGE"))
     } else {
-      throw new Error("Enviroment " + environment + " not found for application " + application);  
+      throw new Error("Enviroment " + environment + " not found for application " + application + " tenant " + tenant);  
     }
  
   }

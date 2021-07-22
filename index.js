@@ -11,7 +11,7 @@ const inputs = {
   //mandatory
   application: core.getInput('application'),
   environment: core.getInput('environment'),
-  services: inputUtils.commaStringToArray(core.getInput('services')),
+  services: core.getInput('service_names'),
   image: core.getInput('image'),
   //optional
   reviewers: inputUtils.commaStringToArray(core.getInput('reviewers')),
@@ -55,7 +55,6 @@ async function run() {
       throw e; 
     }
     await exec.exec("git push origin " + inputs.branch_name);
-
 
 
     //CALCULATE PR VALUES

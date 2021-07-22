@@ -3,15 +3,15 @@ const fs   = require('fs');
 
 class yamlUtils {
 
-  static determineAutoMerge(configFile, application, environment) {
-    // Reead config.yaml or throw exception
-    let configDoc = yamlUtils.loadYaml(configFile);
-
-    const autoMerge = configDoc[application]["auto_merge"][environment];
-    if (autoMerge != null) {
-      return autoMerge;
+  static determineAutoMerge(tenant, application, environment) {
+    
+    const path = "./" + tenant + "/" + application + "/" + environment + "/"
+    
+    console.log("PATH IS: " + path + "AUTO_MERGE")
+    if (fs.existsSync(path)) {
+      return (fs.existsSync(path + "AUTO_MERGE"))
     } else {
-      throw new Error("Enviroment " + environment + " not found for application " + application);  
+      throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);  
     }
  
   }
@@ -35,8 +35,8 @@ class yamlUtils {
     }
   }
 
-  static modifyImage(application, environment, service, newImage) {
-    const fileName = "./" + application + "/" + environment + "/images.yaml"
+  static modifyImage(tenant, application, environment, service, newImage) {
+    const fileName = "./" + tenant + "/" + application + "/" + environment + "/images.yaml"
     
     let imageFile = yamlUtils.loadYaml(fileName);
     
@@ -48,14 +48,14 @@ class yamlUtils {
     return oldValue;
   }
 
-  static modifyServicesImage(application, environment, services, newImage) {
+  static modifyServicesImage(tenant, application, environment, services, newImage) {
     let oldImages;
     if (services.length == 0){
       throw new Error("Error: services array is empty, imposible to modify image!");
     }
 
     for (let i = 0; i < services.length; i++){
-      oldImages = yamlUtils.modifyImage(application, environment, services[i], newImage);
+      oldImages = yamlUtils.modifyImage(tenant, application, environment, services[i], newImage);
     }
 
     return oldImages;

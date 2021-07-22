@@ -1,5 +1,0 @@
-proxy:
-  image: foo/proxy:pre
-
-dns:
-  image: foo/dns:pre
