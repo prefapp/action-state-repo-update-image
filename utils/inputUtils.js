@@ -9,11 +9,10 @@ class inputUtils {
     return array;
   }
 
-  static createBranchName(app, env){
+  static createBranchName(tenant, app, env){
     
     const timestamp = new Date().getTime();
-    //const rndSha = sha1(Date.now()).slice(0, 6);
-    return `automated/update-image-${app}-${env}-${timestamp}`;
+    return `automated/update-image-${tenant}-${app}-${env}-${timestamp}`;
     
   }
 

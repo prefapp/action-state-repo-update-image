@@ -3,4 +3,4 @@ app-server:
 app-client:
   image: foo/common:bar
 app-api:
-  image: foo/common:bar 
+  image: foo/common:bar

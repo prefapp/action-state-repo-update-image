@@ -3,22 +3,21 @@ description: >
   Using state repo structure it updates an image value and the creates 
   a pull request in the same state repo
 inputs:
+  tenant:
+    description: 'Tenant'
+    required: true
   application:
     description: 'Application to read from config.yaml'
     required: true
-    default: ''
   environment:
     description: 'Environment to select from config.yaml'
     required: true
-    default: ''
   services:
-    description: 'Comma separeted list of services'
+    description: 'array of services'
     required: true
-    default: ''
   image:
     description: 'New image value'
     required: true
-    default: ''
   reviewers:
     description: 'Reviewers of the new PR'
     required: false
