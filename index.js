@@ -64,15 +64,15 @@ async function run() {
       if(inputs.pr_title == "")
         inputs.pr_title = `Updated image ${inputs.image} in application: ${inputs.application} - env: ${inputs.environment}`; 
       if(inputs.pr_body == "")
-        inputs.pr_body = `Updated image from: ${oldImage} to: ${inputs.image} for the services: ${core.getInput('services')}
+        inputs.pr_body = `Updated image from: ${oldImage} to: ${inputs.image} for the services: ${core.getInput('service_names')}
                           in application: ${inputs.application} at environment: ${inputs.environment}`;
 
       // DETERMINE AUTOMERGE
       let autoMerge;
       try {
-        autoMerge = yamlUtils.determineAutoMerge('./config.yaml',  inputs.application, inputs.environment);
+        autoMerge = yamlUtils.determineAutoMerge(inputs.tenant, inputs.application, inputs.environment);
       } catch (e) {
-        const errorMsg = 'Problem reading ./config.yaml. Setting automerge to false. ' + e
+        const errorMsg = 'Problem reading AUTO_MERGE file. Setting automerge to false. ' + e
         core.info(errorMsg);
         autoMerge = false;
         inputs.pr_body += ".  " + errorMsg; //Show the problem in the pr body 
