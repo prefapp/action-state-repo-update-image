@@ -11894,17 +11894,17 @@ const inputUtils = __nccwpck_require__(8858);
 // most @actions toolkit packages have async methods
 
 const inputs = {
-  //mandatory
+  //MANDATORY
   tenant: core.getInput('tenant'),
   application: core.getInput('application'),
   environment: core.getInput('environment'),
-  services: JSON.parse(core.getInput('service_names')),
   image: core.getInput('image'),
-  //optional
-  reviewers: JSON.parse(core.getInput('reviewers')),
+  //  services
+  //OPTIONAL
   pr_title: core.getInput('pr_title'),
   pr_body: core.getInput('pr_body'),
   branch_name: core.getInput('branch_name'),
+  // reviewers
 };
 
 async function run() {
@@ -11915,6 +11915,16 @@ async function run() {
     const context = github.context;
 
     let ghClient = new ghUtils(context, octokit);
+
+    console.log("Parsing services and reviewers from JSON string...");
+
+    try {
+      inputs.services = JSON.parse(core.getInput('service_names'));
+      inputs.reviewers = JSON.parse(core.getInput('reviewers'));
+    } catch (e) {
+      core.info("Error Parsing services and reviewers from JSON string to JS array " + e);
+      process.exit(1)
+    }
 
     console.log("ACTION INPUTS:");
     console.log(inputs);
