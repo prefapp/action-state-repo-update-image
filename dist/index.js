@@ -11680,6 +11680,10 @@ class yamlUtils {
     //console.log("DEBUGG, service " + service);
 
     let imageFile = yamlUtils.loadYaml(fileName);
+
+    if (typeof imageFile[service] == 'undefined'){
+      throw new Error("Error: no service " + service + " found in file " + fileName);
+    }
     
     const oldValue = imageFile[service]["image"];
     imageFile[service]["image"] = newImage;

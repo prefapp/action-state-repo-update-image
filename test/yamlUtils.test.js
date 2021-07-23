@@ -66,7 +66,9 @@ test('modifyImage failure', () => {
 
   expect(() => {
     yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "inexistent_service", "foo/common:bar");
-  }).toThrow("Cannot read property 'image' of undefined");
+  }).toThrow("Error: no service inexistent_service found in file ./fixtures/tenant2/releaseB/pro/images.yaml");
+
+  
 
 });
 
