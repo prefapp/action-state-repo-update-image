@@ -12,8 +12,8 @@ inputs:
   environment:
     description: 'Environment to select from config.yaml'
     required: true
-  services:
-    description: 'array of services'
+  service_names:
+    description: 'json array of services'
     required: true
   image:
     description: 'New image value'
