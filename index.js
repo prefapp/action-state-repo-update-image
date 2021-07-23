@@ -12,10 +12,10 @@ const inputs = {
   tenant: core.getInput('tenant'),
   application: core.getInput('application'),
   environment: core.getInput('environment'),
-  services: core.getInput('service_names'),
+  services: JSON.parse(core.getInput('service_names')),
   image: core.getInput('image'),
   //optional
-  reviewers: inputUtils.commaStringToArray(core.getInput('reviewers')),
+  reviewers: JSON.parse(core.getInput('reviewers')),
   pr_title: core.getInput('pr_title'),
   pr_body: core.getInput('pr_body'),
   branch_name: core.getInput('branch_name'),

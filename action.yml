@@ -13,13 +13,13 @@ inputs:
     description: 'Environment to select from config.yaml'
     required: true
   service_names:
-    description: 'json array of services'
+    description: 'JSON string (to be parsed) array of services'
     required: true
   image:
     description: 'New image value'
     required: true
   reviewers:
-    description: 'Reviewers of the new PR'
+    description: 'JSON string (to be parsed) array of reviewers of the new PR'
     required: false
     default: ''
   pr_title:
