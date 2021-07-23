@@ -79,10 +79,12 @@ steps:
         branch_name: automated/update-image #OPTIONAL
 ```
 
-### @feature/v3 - Use of tenants, AUTO_MERGE and no config.yaml
+### @feature/v3 - Idempotence, use of tenants, AUTO_MERGE and no config.yaml
 
 In the new version of the action, the applications must belong to a tenant and the automerge is defined
 by the inclusion of an `AUTO_MERGE` file in the desired environment. The structure of the repo is all the action needs, the config.yaml is deprecated!
+
+Also, due to the expected external usage, this action is now idempotent. If you try to update an image with the same name and tag it had before nothing will happen: no PR, no commit, just a termination message.
 
 State repo structure required:
 ```

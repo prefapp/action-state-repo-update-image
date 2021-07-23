@@ -56,7 +56,7 @@ async function run() {
     const oldImage = yamlUtils.modifyServicesImage(inputs.tenant, inputs.application, inputs.environment, inputs.services, inputs.image);
 
     if (oldImage == inputs.image){
-      core.info(`Image ${inputs.image} is the same found in /-${inputs.tenant}/${inputs.application}/${inputs.environment}/${inputs.services[0]}.image`);
+      core.info(`Image ${inputs.image} is the same found in /${inputs.tenant}/${inputs.application}/${inputs.environment}/${inputs.services[0]}.image`);
     } 
     else {
       //PUSH CHANGES TO ORIGIN

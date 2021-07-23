@@ -11676,8 +11676,8 @@ class yamlUtils {
   static modifyImage(tenant, application, environment, service, newImage) {
     const fileName = "./" + tenant + "/" + application + "/" + environment + "/images.yaml"
     
-    console.log("DEBUGG, filename: " + fileName);
-    console.log("DEBUGG, service " + service);
+    //console.log("DEBUGG, filename: " + fileName);
+    //console.log("DEBUGG, service " + service);
 
     let imageFile = yamlUtils.loadYaml(fileName);
     
@@ -11942,7 +11942,7 @@ async function run() {
     const oldImage = yamlUtils.modifyServicesImage(inputs.tenant, inputs.application, inputs.environment, inputs.services, inputs.image);
 
     if (oldImage == inputs.image){
-      core.info(`Image ${inputs.image} is the same found in /-${inputs.tenant}/${inputs.application}/${inputs.environment}/${inputs.services[0]}.image`);
+      core.info(`Image ${inputs.image} is the same found in /${inputs.tenant}/${inputs.application}/${inputs.environment}/${inputs.services[0]}.image`);
     } 
     else {
       //PUSH CHANGES TO ORIGIN
