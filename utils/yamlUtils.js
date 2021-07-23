@@ -38,6 +38,9 @@ class yamlUtils {
   static modifyImage(tenant, application, environment, service, newImage) {
     const fileName = "./" + tenant + "/" + application + "/" + environment + "/images.yaml"
     
+    console.log("DEBUGG, filename: " + fileName);
+    console.log("DEBUGG, service " + service);
+
     let imageFile = yamlUtils.loadYaml(fileName);
     
     const oldValue = imageFile[service]["image"];
