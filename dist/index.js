@@ -11985,8 +11985,13 @@ async function run() {
 
       //ADD REVIEWERS
       if(inputs.reviewers.length > 0){
-        await ghClient.prAddReviewers(prNumber, inputs.reviewers);
-        core.info('Added reviewers: ' + inputs.reviewers);
+        try {
+          await ghClient.prAddReviewers(prNumber, inputs.reviewers);
+          core.info('Added reviewers: ' + inputs.reviewers);
+        } catch (e) {
+          const errorMsg = 'Error addign reviewers: ' + e;
+          core.info(errorMsg);
+        }
       }else {
         core.info('No reviewers were added (input reviewers came empty)');
       }
