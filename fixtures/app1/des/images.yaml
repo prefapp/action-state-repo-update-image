@@ -1,6 +1,0 @@
-app-server:
-  image: foo/server:des
-app-client:
-  image: foo/client:des
-app-api:
-  image: foo/api:des

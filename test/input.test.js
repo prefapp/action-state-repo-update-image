@@ -18,8 +18,7 @@ test('reviewers length', async () => {
 }); 
 
 
-
 test('createBranchName correct', () => {
-  const name1 = inputUtils.createBranchName("app", "env");
-  expect(name1).toStrictEqual(expect.stringContaining("automated/update-image-app-env"));
+  const name1 = inputUtils.createBranchName("tenant", "app", "env");
+  expect(name1).toStrictEqual(expect.stringContaining("automated/update-image-tenant-app-env"));
 });
