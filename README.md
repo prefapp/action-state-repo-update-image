@@ -19,19 +19,19 @@ Version 2 of the action requires to be run in a state repo that follows this str
 ```
 state_repo_name
 ├── app1
-│   ├── des
-│   │   └── images.yaml
-│   ├── pre
-│   │   └── images.yaml
-│   └── pro
-│       └── images.yaml
+│   ├── des
+│   │   └── images.yaml
+│   ├── pre
+│   │   └── images.yaml
+│   └── pro
+│       └── images.yaml
 ├── app2
-│   ├── dev
-│   │   └── images.yaml
-│   ├── pre
-│   │   └── images.yaml
-│   └── pro
-│       └── images.yaml
+│   ├── dev
+│   │   └── images.yaml
+│   ├── pre
+│   │   └── images.yaml
+│   └── pro
+│       └── images.yaml
 └── config.yaml
 
 ```
@@ -90,39 +90,39 @@ State repo structure required:
 ```
 state_repo_name
 ├── tenant1
-│   ├── release1
-│   │   ├── dev
-│   │   │   ├── AUTO_MERGE
-│   │   │   └── images.yaml
-│   │   ├── pre
-│   │   │   ├── AUTO_MERGE
-│   │   │   └── images.yaml
-│   │   └── pro
-│   │       └── images.yaml
-│   └── release2
-│       ├── dev
-│       │   ├── AUTO_MERGE
-│       │   └── images.yaml
-│       ├── pre
-│       │   └── images.yaml
-│       └── pro
-│           └── images.yaml
+│   ├── release1
+│   │   ├── dev
+│   │   │   ├── AUTO_MERGE
+│   │   │   └── images.yaml
+│   │   ├── pre
+│   │   │   ├── AUTO_MERGE
+│   │   │   └── images.yaml
+│   │   └── pro
+│   │       └── images.yaml
+│   └── release2
+│       ├── dev
+│       │   ├── AUTO_MERGE
+│       │   └── images.yaml
+│       ├── pre
+│       │   └── images.yaml
+│       └── pro
+│           └── images.yaml
 └── tenant2
     ├── releaseA
-    │   ├── dev
-    │   │   ├── AUTO_MERGE
-    │   │   └── images.yaml
-    │   ├── pre
-    │   │   ├── AUTO_MERGE
-    │   │   └── images.yaml
-    │   └── pro
-    │       └── images.yaml
+    │   ├── dev
+    │   │   ├── AUTO_MERGE
+    │   │   └── images.yaml
+    │   ├── pre
+    │   │   ├── AUTO_MERGE
+    │   │   └── images.yaml
+    │   └── pro
+    │       └── images.yaml
     └── releaseB
         ├── dev
-        │   ├── AUTO_MERGE
-        │   └── images.yaml
+        │   ├── AUTO_MERGE
+        │   └── images.yaml
         ├── pre
-        │   └── images.yaml
+        │   └── images.yaml
         └── pro
             └── images.yaml
 ```
