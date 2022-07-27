@@ -62,7 +62,7 @@ async function run() {
       //PUSH CHANGES TO ORIGIN
       await exec.exec("git add .");
       try{
-        await exec.exec('git commit -m "Image values updated"');
+        await exec.exec('git commit -m "feat: Image values updated"');
       }catch(e){
         console.log("ERROR TRYING TO COMMIT CHANGES!! (nothing to commit?)");
         throw e; 
