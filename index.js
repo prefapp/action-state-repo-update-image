@@ -28,7 +28,7 @@ async function run() {
       //CREATE BRANCH
       await exec.exec("git stash");
       await exec.exec("git checkout main");
-      await exec.exec("git reset --hard origin/master");
+      await exec.exec("git reset --hard origin/main");
       await exec.exec("git checkout -b " + branchName);
   
       //MODIFY SERVICES IMAGE
