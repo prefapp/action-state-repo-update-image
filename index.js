@@ -22,7 +22,7 @@ async function run() {
     await exec.exec("git config --global user.email github-actions@github.com");
 
     //CALCULATE BRANCH NAME
-    for (const inputs of input_matrix) {
+    for (const inputs of input_matrix.matrix) {
       const branchName = inputUtils.createBranchName(inputs.tenant, inputs.application, inputs.environment);
     
       //CREATE BRANCH

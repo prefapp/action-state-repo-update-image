@@ -11696,7 +11696,7 @@ class yamlUtils {
   static modifyServicesImage(tenant, application, environment, services, newImage) {
     let oldImages = [];
     if (services.length == 0){
-      throw new Error("Error: services array is empty, imposible to modify image!");
+      throw new Error("Error: services array is empty, impossible to modify image!");
     }
 
     for (let i = 0; i < services.length; i++){
@@ -11912,7 +11912,7 @@ async function run() {
     await exec.exec("git config --global user.email github-actions@github.com");
 
     //CALCULATE BRANCH NAME
-    for (const inputs of input_matrix) {
+    for (const inputs of input_matrix.matrix) {
       const branchName = inputUtils.createBranchName(inputs.tenant, inputs.application, inputs.environment);
     
       //CREATE BRANCH
