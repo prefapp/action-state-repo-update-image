@@ -20,6 +20,8 @@ async function run() {
     await exec.exec("git config --global user.email github-actions@github.com");
 
     for (const inputs of input_matrix.matrix) {
+      core.info("\n\n \u001b[44m Updating image for inputs: \u001b[0m")
+      core.info(JSON.stringify(inputs))
       await openPRwithNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_names, inputs.image, inputs.reviewers)
     }
       
@@ -85,7 +87,7 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
       await ghClient.mergePr(prNumber);
       core.info('Successfully merged PR number: ' + prNumber);
     }else{
-      core.info('Enviroment ' + environment + ' does NOT allow automerge!');
+      core.info(tenant + "/" + application + "/" + environment + " does NOT allow automerge!")
     }
   } catch (e) {
     const errorMsg = 'Problem reading AUTO_MERGE file. Setting automerge to false. ' + e

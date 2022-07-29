@@ -7,7 +7,7 @@ class yamlUtils {
     
     const path = "./" + tenant + "/" + application + "/" + environment + "/"
     
-    console.log("PATH IS: " + path + "AUTO_MERGE")
+    //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(path)) {
       return (fs.existsSync(path + "AUTO_MERGE"))
     } else {
