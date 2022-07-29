@@ -57,7 +57,7 @@ class yamlUtils {
 
   static modifyServicesImage(tenant, application, environment, services, newImage) {
     let oldImages = [];
-    if (services.length == 0){
+    if (services.length === 0){
       throw new Error("Error: services array is empty, impossible to modify image!");
     }
 
