@@ -1,30 +1,29 @@
 const core = require('@actions/core');
-const exec = require('@actions/exec');
-const github = require('@actions/github');
-const ghUtils = require('./utils/ghUtils');
-const yamlUtils = require('./utils/yamlUtils');
-const inputUtils = require('./utils/inputUtils');
+// const exec = require('@actions/exec');
+// const github = require('@actions/github');
+// const ghUtils = require('./utils/ghUtils');
+// const yamlUtils = require('./utils/yamlUtils');
+// const inputUtils = require('./utils/inputUtils');
 
 // most @actions toolkit packages have async methods
 
-const inputs = {
-  //MANDATORY
-  tenant: core.getInput('tenant'),
-  application: core.getInput('application'),
-  environment: core.getInput('environment'),
-  image: core.getInput('image'),
-  //  services
-  //OPTIONAL
-  pr_title: core.getInput('pr_title'),
-  pr_body: core.getInput('pr_body'),
-  branch_name: core.getInput('branch_name'),
-  // reviewers
-};
+
 
 async function run() {
   try {
 
-    const SECRET_TOKEN = core.getInput('token');
+    // const SECRET_TOKEN = core.getInput('token');
+    //MANDATORY
+    const input_matrix = JSON.parse(core.getInput('input_matrix'));
+    //OPTIONAL
+    //const branch_name = core.getInput('branch_name');
+
+    core.info(JSON.stringify(input_matrix))
+
+    return
+
+    /*
+
     const octokit = github.getOctokit(SECRET_TOKEN);
     const context = github.context;
 
@@ -50,6 +49,7 @@ async function run() {
     //CREATE BRANCH
     await exec.exec("git config --global user.name github-actions");
     await exec.exec("git config --global user.email github-actions@github.com");
+    await exec.exec("git checkout main");
     await exec.exec("git checkout -b " + inputs.branch_name);
 
     //MODIFY SERVICES IMAGE
@@ -116,6 +116,7 @@ async function run() {
       }
     }
 
+    */
   } catch (error) {
     core.setFailed(error.message);
   }
