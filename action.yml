@@ -3,33 +3,20 @@ description: >
   Using state repo structure it updates an image value and the creates 
   a pull request in the same state repo
 inputs:
-  tenant:
-    description: 'Tenant'
+  input_matrix:
+    description: >
+      Inputs in the format:
+        [ 
+          {
+            tenant: 'tenant1',
+            app: 'release_foo',
+            env: 'pre',
+            service_names: [ 'hello' ],
+            image: 'test-service:last_prerelease_default',
+            reviewers: [ 'test@prefapp.es' ]  // this parameter (and only) is optional
+          }
+        ]
     required: true
-  application:
-    description: 'Application to read from config.yaml'
-    required: true
-  environment:
-    description: 'Environment to select from config.yaml'
-    required: true
-  service_names:
-    description: 'JSON string (to be parsed) array of services'
-    required: true
-  image:
-    description: 'New image value'
-    required: true
-  reviewers:
-    description: 'JSON string (to be parsed) array of reviewers of the new PR'
-    required: false
-    default: ''
-  pr_title:
-    description: 'The title of the PR'
-    required: false
-    default: ''
-  pr_body:
-    description: 'Body of the PR'
-    required: false
-    default: ''
   branch_name:
     description: 'Name of the new branch used to pull request'
     required: false

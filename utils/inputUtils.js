@@ -11,7 +11,7 @@ class inputUtils {
 
   static createBranchName(tenant, app, env){
     
-    const timestamp = new Date().getTime();
+    const timestamp = new Date().getTime() % 1000;
     return `automated/update-image-${tenant}-${app}-${env}-${timestamp}`;
     
   }

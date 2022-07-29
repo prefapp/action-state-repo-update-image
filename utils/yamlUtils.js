@@ -7,7 +7,7 @@ class yamlUtils {
     
     const path = "./" + tenant + "/" + application + "/" + environment + "/"
     
-    console.log("PATH IS: " + path + "AUTO_MERGE")
+    //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(path)) {
       return (fs.existsSync(path + "AUTO_MERGE"))
     } else {
@@ -56,13 +56,13 @@ class yamlUtils {
   }
 
   static modifyServicesImage(tenant, application, environment, services, newImage) {
-    let oldImages;
-    if (services.length == 0){
-      throw new Error("Error: services array is empty, imposible to modify image!");
+    let oldImages = [];
+    if (services.length === 0){
+      throw new Error("Error: services array is empty, impossible to modify image!");
     }
 
     for (let i = 0; i < services.length; i++){
-      oldImages = yamlUtils.modifyImage(tenant, application, environment, services[i], newImage);
+      oldImages.push(yamlUtils.modifyImage(tenant, application, environment, services[i], newImage));
     }
 
     return oldImages;

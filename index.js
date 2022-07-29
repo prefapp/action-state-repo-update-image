@@ -5,120 +5,94 @@ const ghUtils = require('./utils/ghUtils');
 const yamlUtils = require('./utils/yamlUtils');
 const inputUtils = require('./utils/inputUtils');
 
-// most @actions toolkit packages have async methods
-
-const inputs = {
-  //MANDATORY
-  tenant: core.getInput('tenant'),
-  application: core.getInput('application'),
-  environment: core.getInput('environment'),
-  image: core.getInput('image'),
-  //  services
-  //OPTIONAL
-  pr_title: core.getInput('pr_title'),
-  pr_body: core.getInput('pr_body'),
-  branch_name: core.getInput('branch_name'),
-  // reviewers
-};
 
 async function run() {
   try {
+    const ghClient = new ghUtils(github.context, github.getOctokit(core.getInput('token')));
+    const input_matrix = JSON.parse(core.getInput('input_matrix'));
 
-    const SECRET_TOKEN = core.getInput('token');
-    const octokit = github.getOctokit(SECRET_TOKEN);
-    const context = github.context;
-
-    let ghClient = new ghUtils(context, octokit);
-
-    console.log("Parsing services and reviewers from JSON string...");
-
-    try {
-      inputs.services = JSON.parse(core.getInput('service_names'));
-      inputs.reviewers = JSON.parse(core.getInput('reviewers'));
-    } catch (e) {
-      core.info("Error Parsing services and reviewers from JSON string to JS array " + e);
-      process.exit(1)
-    }
-
-    console.log("ACTION INPUTS:");
-    console.log(inputs);
+    core.info(JSON.stringify(input_matrix))
     
-    //CALCULATE BRANCH NAME
-    if(inputs.branch_name == "")
-    inputs.branch_name = inputUtils.createBranchName(inputs.tenant, inputs.application, inputs.environment);
-    
-    //CREATE BRANCH
+    // TODO: validate input matrix against json schema
+    //       HEY, THIS IS IMPORTANT !!!!
+
     await exec.exec("git config --global user.name github-actions");
     await exec.exec("git config --global user.email github-actions@github.com");
-    await exec.exec("git checkout -b " + inputs.branch_name);
 
-    //MODIFY SERVICES IMAGE
-    const oldImage = yamlUtils.modifyServicesImage(inputs.tenant, inputs.application, inputs.environment, inputs.services, inputs.image);
-
-    if (oldImage == inputs.image){
-      core.info(`Image ${inputs.image} is the same found in /${inputs.tenant}/${inputs.application}/${inputs.environment}/${inputs.services[0]}.image`);
-    } 
-    else {
-      //PUSH CHANGES TO ORIGIN
-      await exec.exec("git add .");
-      try{
-        await exec.exec('git commit -m "Image values updated"');
-      }catch(e){
-        console.log("ERROR TRYING TO COMMIT CHANGES!! (nothing to commit?)");
-        throw e; 
-      }
-      await exec.exec("git push origin " + inputs.branch_name);
-
-
-      //CALCULATE PR VALUES
-      if(inputs.pr_title == "")
-        inputs.pr_title = `Updated image ${inputs.image} for tenant: ${inputs.tenant} in application: ${inputs.application} and env: ${inputs.environment}`; 
-      if(inputs.pr_body == "")
-        inputs.pr_body = `Updated image from: ${oldImage} to: ${inputs.image} in services: ${core.getInput('service_names')}
-                          for tenant: ${inputs.tenant} in application: ${inputs.application} at environment: ${inputs.environment}`;
-
-      // DETERMINE AUTOMERGE
-      let autoMerge;
-      try {
-        autoMerge = yamlUtils.determineAutoMerge(inputs.tenant, inputs.application, inputs.environment);
-      } catch (e) {
-        const errorMsg = 'Problem reading AUTO_MERGE file. Setting automerge to false. ' + e
-        core.info(errorMsg);
-        autoMerge = false;
-        inputs.pr_body += ".  " + errorMsg; //Show the problem in the pr body 
-      }
-
-      //CREATE PULL REQUEST
-      const prNumber = await ghClient.createPr(inputs.branch_name, inputs.pr_title, inputs.pr_body)
-      core.info('Created PR number: ' + prNumber);
-      
-
-      //ADD REVIEWERS
-      if(inputs.reviewers.length > 0){
-        try {
-          await ghClient.prAddReviewers(prNumber, inputs.reviewers);
-          core.info('Added reviewers: ' + inputs.reviewers);
-        } catch (e) {
-          const errorMsg = 'Error addign reviewers: ' + e;
-          core.info(errorMsg);
-        }
-      }else {
-        core.info('No reviewers were added (input reviewers came empty)');
-      }
-
-      
-      //TRY TO MERGE
-      if(autoMerge){
-        await ghClient.mergePr(prNumber);
-        core.info('Successfully merged PR number: ' + prNumber);
-      }else{
-        core.info('Enviroment ' + inputs.environment + ' does NOT allow automerge!');
-      }
+    for (const inputs of input_matrix.matrix) {
+      core.info("\n\n \u001b[44m Updating image for inputs: \u001b[0m")
+      core.info(JSON.stringify(inputs))
+      await openPRwithNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_names, inputs.image, inputs.reviewers)
     }
-
+      
   } catch (error) {
     core.setFailed(error.message);
   }
+}
+
+async function openPRwithNewImage(ghClient, tenant, application, environment, services, newImage, reviewers = []) {
+  //CALCULATE BRANCH NAME
+  const branchName = inputUtils.createBranchName(tenant, application, environment);
+    
+  //CREATE BRANCH
+  await exec.exec("git stash");
+  await exec.exec("git checkout main");
+  await exec.exec("git reset --hard origin/main");
+  await exec.exec("git checkout -b " + branchName);
+
+  //MODIFY SERVICES IMAGE
+  const oldImages = yamlUtils.modifyServicesImage(tenant, application, environment, services, newImage);
+
+  if (oldImages.length === 0){
+    core.info(`Image is the same found in all services!!!`);
+    core.info(`Skipping PR for ${tenant}/${application}/${environment} - services: ${JSON.stringify(services)} `)
+    return
+  } 
+
+  //PUSH CHANGES TO ORIGIN
+  await exec.exec("git add .");
+  try{
+    await exec.exec('git commit -m "feat: Image values updated"');
+  }catch(e){
+    console.log(`ERROR TRYING TO COMMIT CHANGES!! inputs: ${JSON.stringify({tenant, application, environment, services, newImage})}. Error: ${e}`);
+    return
+  }
+  await exec.exec("git push origin " + branchName);
+
+  const prTitle = `Updated image \`${newImage}\` for tenant \`${tenant}\` in application \`${application}\` and env \`${environment}\``; 
+  let prBody = `This is an automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
+  prBody += `Updated images \`${JSON.stringify(oldImages)}\` to \`${newImage}\` in services \`${JSON.stringify(services)}\``;
+
+  //CREATE PULL REQUEST
+  const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
+  core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
+  
+
+  //ADD REVIEWERS
+  if(reviewers.length > 0){
+    try {
+      await ghClient.prAddReviewers(prNumber, reviewers);
+      core.info('Added reviewers: ' + reviewers);
+    } catch (e) {
+      const errorMsg = 'Error adding reviewers: ' + e;
+      core.info(errorMsg);
+    }
+  }else {
+    core.info('No reviewers were added (input reviewers came empty)');
+  }
+
+  // DETERMINE AUTOMERGE AND TRY TO MERGE
+  try {
+    if(yamlUtils.determineAutoMerge(tenant, application, environment)){
+      await ghClient.mergePr(prNumber);
+      core.info('Successfully merged PR number: ' + prNumber);
+    }else{
+      core.info(tenant + "/" + application + "/" + environment + " does NOT allow automerge!")
+    }
+  } catch (e) {
+    const errorMsg = 'Problem reading AUTO_MERGE file. Setting automerge to false. ' + e
+    core.info(errorMsg);
+  }      
 }
 
 run();
