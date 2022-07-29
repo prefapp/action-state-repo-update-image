@@ -11695,7 +11695,7 @@ class yamlUtils {
 
   static modifyServicesImage(tenant, application, environment, services, newImage) {
     let oldImages = [];
-    if (services.length == 0){
+    if (services.length === 0){
       throw new Error("Error: services array is empty, impossible to modify image!");
     }
 
@@ -11913,7 +11913,7 @@ async function run() {
 
     //CALCULATE BRANCH NAME
     for (const inputs of input_matrix.matrix) {
-      const branchName = inputUtils.createBranchName(inputs.tenant, inputs.application, inputs.environment);
+      const branchName = inputUtils.createBranchName(inputs.tenant, inputs.app, inputs.env);
     
       //CREATE BRANCH
       await exec.exec("git stash");
@@ -11922,11 +11922,11 @@ async function run() {
       await exec.exec("git checkout -b " + branchName);
   
       //MODIFY SERVICES IMAGE
-      const oldImages = yamlUtils.modifyServicesImage(inputs.tenant, inputs.application, inputs.environment, inputs.services, inputs.image);
+      const oldImages = yamlUtils.modifyServicesImage(inputs.tenant, inputs.app, inputs.env, inputs.service_names, inputs.image);
   
       if (oldImages.length === 0){
         core.info(`Image is the same found in all services!!!`);
-        core.info(`Skipping PR for ${inputs.tenant}/${inputs.application}/${inputs.environment} - services: ${JSON.stringify(inputs.services)} `)
+        core.info(`Skipping PR for ${inputs.tenant}/${inputs.app}/${inputs.env} - services: ${JSON.stringify(inputs.service_names)} `)
         break
       } 
   
@@ -11940,14 +11940,14 @@ async function run() {
       }
       await exec.exec("git push origin " + inputs.branch_name);
   
-      const prTitle = `Updated image ${inputs.image} for tenant: ${inputs.tenant} in application: ${inputs.application} and env: ${inputs.environment}`; 
+      const prTitle = `Updated image ${inputs.image} for tenant: ${inputs.tenant} in application: ${inputs.app} and env: ${inputs.env}`; 
       const prBody = `Updated image from: ${oldImages[0]} to: ${inputs.image} in services: ${core.getInput('service_names')}
-                          for tenant: ${inputs.tenant} in application: ${inputs.application} at environment: ${inputs.environment}`;
+                          for tenant: ${inputs.tenant} in application: ${inputs.app} at environment: ${inputs.env}`;
   
       // DETERMINE AUTOMERGE
       let autoMerge;
       try {
-        autoMerge = yamlUtils.determineAutoMerge(inputs.tenant, inputs.application, inputs.environment);
+        autoMerge = yamlUtils.determineAutoMerge(inputs.tenant, inputs.app, inputs.env);
       } catch (e) {
         const errorMsg = 'Problem reading AUTO_MERGE file. Setting automerge to false. ' + e
         core.info(errorMsg);
@@ -11978,7 +11978,7 @@ async function run() {
         await ghClient.mergePr(prNumber);
         core.info('Successfully merged PR number: ' + prNumber);
       }else{
-        core.info('Enviroment ' + inputs.environment + ' does NOT allow automerge!');
+        core.info('Enviroment ' + inputs.env + ' does NOT allow automerge!');
       }
     }
 
