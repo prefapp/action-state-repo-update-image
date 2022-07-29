@@ -48,25 +48,14 @@ async function run() {
         console.log(`ERROR TRYING TO COMMIT CHANGES!! inputs: ${JSON.stringify(input_matrix)}. Error: ${e}`);
         break
       }
-      await exec.exec("git push origin " + inputs.branch_name);
+      await exec.exec("git push origin " + branchName);
   
       const prTitle = `Updated image ${inputs.image} for tenant: ${inputs.tenant} in application: ${inputs.app} and env: ${inputs.env}`; 
       const prBody = `Updated image from: ${oldImages[0]} to: ${inputs.image} in services: ${core.getInput('service_names')}
                           for tenant: ${inputs.tenant} in application: ${inputs.app} at environment: ${inputs.env}`;
   
-      // DETERMINE AUTOMERGE
-      let autoMerge;
-      try {
-        autoMerge = yamlUtils.determineAutoMerge(inputs.tenant, inputs.app, inputs.env);
-      } catch (e) {
-        const errorMsg = 'Problem reading AUTO_MERGE file. Setting automerge to false. ' + e
-        core.info(errorMsg);
-        autoMerge = false;
-        inputs.pr_body += ".  " + errorMsg; //Show the problem in the pr body 
-      }
-  
       //CREATE PULL REQUEST
-      const prNumber = await ghClient.createPr(inputs.branch_name, prTitle, prBody)
+      const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
       core.info('Created PR number: ' + prNumber);
       
   
@@ -83,13 +72,18 @@ async function run() {
         core.info('No reviewers were added (input reviewers came empty)');
       }
   
-      //TRY TO MERGE
-      if(autoMerge){
-        await ghClient.mergePr(prNumber);
-        core.info('Successfully merged PR number: ' + prNumber);
-      }else{
-        core.info('Enviroment ' + inputs.env + ' does NOT allow automerge!');
-      }
+      // DETERMINE AUTOMERGE AND TRY TO MERGE
+      try {
+        if(yamlUtils.determineAutoMerge(inputs.tenant, inputs.app, inputs.env)){
+          await ghClient.mergePr(prNumber);
+          core.info('Successfully merged PR number: ' + prNumber);
+        }else{
+          core.info('Enviroment ' + inputs.env + ' does NOT allow automerge!');
+        }
+      } catch (e) {
+        const errorMsg = 'Problem reading AUTO_MERGE file. Setting automerge to false. ' + e
+        core.info(errorMsg);
+      }      
     }
 
   } catch (error) {
