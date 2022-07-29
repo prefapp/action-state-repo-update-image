@@ -26,7 +26,7 @@ async function run() {
       const branchName = inputUtils.createBranchName(inputs.tenant, inputs.application, inputs.environment);
     
       //CREATE BRANCH
-      await exec.exec("git checkout stash");
+      await exec.exec("git stash");
       await exec.exec("git checkout main");
       await exec.exec("git reset --hard origin/master");
       await exec.exec("git checkout -b " + branchName);
@@ -83,7 +83,6 @@ async function run() {
         core.info('No reviewers were added (input reviewers came empty)');
       }
   
-      
       //TRY TO MERGE
       if(autoMerge){
         await ghClient.mergePr(prNumber);
