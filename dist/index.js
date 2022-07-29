@@ -11559,6 +11559,10 @@ class ghUtils {
     this.repoOwner = context.payload.repository.owner.login;
   }
 
+  getActionUrl() {
+    return `https://github.com/${this.repoOwner}/${this.context.repo.repo}/actions/runs/${this.context.runId}`
+  }
+
   async createPr(targetBranch, title, body) {
     const prInputs = {
       owner: this.repoOwner,
@@ -11949,13 +11953,13 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   }
   await exec.exec("git push origin " + branchName);
 
-  const prTitle = `Updated image ${newImage} for tenant: ${tenant} in application: ${application} and env: ${environment}`; 
-  const prBody = `Updated image from: ${oldImages[0]} to: ${newImage} in services: ${core.getInput('service_names')}
-                      for tenant: ${tenant} in application: ${application} at environment: ${environment}`;
+  const prTitle = `Updated image \`${newImage}\` for tenant \`${tenant}\` in application \`${application}\` and env \`${environment}\``; 
+  let prBody = `This is an automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
+  prBody += `Updated images \`${JSON.stringify(oldImages)}\` to \`${newImage}\` in services \`${JSON.stringify(services)}\``;
 
   //CREATE PULL REQUEST
   const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
-  core.info('Created PR number: ' + prNumber);
+  core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
   
 
   //ADD REVIEWERS

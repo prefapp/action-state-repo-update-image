@@ -8,6 +8,10 @@ class ghUtils {
     this.repoOwner = context.payload.repository.owner.login;
   }
 
+  getActionUrl() {
+    return `https://github.com/${this.repoOwner}/${this.context.repo.repo}/actions/runs/${this.context.runId}`
+  }
+
   async createPr(targetBranch, title, body) {
     const prInputs = {
       owner: this.repoOwner,
