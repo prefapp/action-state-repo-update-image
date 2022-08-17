@@ -11905,6 +11905,8 @@ async function run() {
     const ghClient = new ghUtils(github.context, github.getOctokit(core.getInput('token')));
     let input_matrix;
 
+    core.info(JSON.stringify(core.getInput('input_matrix')))
+
     try {
       input_matrix = JSON.parse(core.getInput('input_matrix'));
     } catch (e) {
