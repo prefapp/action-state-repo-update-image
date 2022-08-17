@@ -9,7 +9,14 @@ const inputUtils = require('./utils/inputUtils');
 async function run() {
   try {
     const ghClient = new ghUtils(github.context, github.getOctokit(core.getInput('token')));
-    const input_matrix = JSON.parse(core.getInput('input_matrix'));
+    let input_matrix;
+
+    try {
+      input_matrix = JSON.parse(core.getInput('input_matrix'));
+    } catch (e) {
+      core.info("Error Parsing services and reviewers from JSON string to JS array " + e);
+      process.exit(1)
+    }
 
     core.info(JSON.stringify(input_matrix))
     
@@ -19,7 +26,7 @@ async function run() {
     await exec.exec("git config --global user.name github-actions");
     await exec.exec("git config --global user.email github-actions@github.com");
 
-    for (const inputs of input_matrix.matrix) {
+    for (const inputs of input_matrix) {
       core.info("\n\n \u001b[44m Updating image for inputs: \u001b[0m")
       core.info(JSON.stringify(inputs))
       await openPRwithNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_names, inputs.image, inputs.reviewers)
