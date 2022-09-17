@@ -68,6 +68,9 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
   core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
   
+  core.info('Adding labels to the PR...')
+  await ghUtils.createAndSetLabels(prNumber, [`tenant/${tenant}`, `app/${application}`, `env/${environment}`, `service/${service}`])
+
 
   //ADD REVIEWERS
   if(reviewers.length > 0){

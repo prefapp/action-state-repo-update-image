@@ -11600,7 +11600,47 @@ class ghUtils {
     const ghResponse = await this.octokit.rest.pulls.merge(mergePrInputs);
     return ghResponse;
   }
-  
+
+  async addLabels(prNumber, labels) {
+    const inputs = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+      issue_number: prNumber,
+      labels 
+    }
+    const ghResponse = await this.octokit.rest.issues.addLabels(inputs);
+    return ghResponse;
+  }
+
+  async createLabel(newLabel) {
+    const inputs = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+      name: newLabel,
+      // we should calculate the color based on the tag prefix and add it here
+    }
+    const ghResponse = await this.octokit.rest.issues.createLabel(inputs);
+    return ghResponse;
+  }
+
+  async getRepoLabels() {
+    const inputs = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+    }
+    const ghResponse = await this.octokit.rest.issues.listLabelsForRepo(inputs);
+    return ghResponse.data.map(labelObj => labelObj.name);
+  }
+
+  async createAndSetLabels(prNumber, labels) {
+    const repoLabels = await this.getRepoLabels()
+    for (const label of labels) {
+      if (!repoLabels.includes(label)) {
+        this.createLabel(label)
+      }
+    }
+    return await this.addPRLabels(prNumber, labels)
+  }  
 
 }
 
@@ -11963,6 +12003,9 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
   core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
   
+  core.info('Adding labels to the PR...')
+  await ghUtils.createAndSetLabels(prNumber, [`tenant/${tenant}`, `app/${application}`, `env/${environment}`, `service/${service}`])
+
 
   //ADD REVIEWERS
   if(reviewers.length > 0){
