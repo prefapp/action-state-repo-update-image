@@ -61,7 +61,7 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   await exec.exec("git push origin " + branchName);
 
   const prTitle = `Updated image \`${newImage}\` for tenant \`${tenant}\` in application \`${application}\` and env \`${environment}\``; 
-  let prBody = `This is an automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
+  let prBody = `Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
   prBody += `Updated image \`${JSON.stringify(oldImageName)}\` to \`${newImage}\` in service \`${JSON.stringify(service)}\``;
 
   //CREATE PULL REQUEST
@@ -69,7 +69,7 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
   
   core.info('Adding labels to the PR...')
-  await ghUtils.createAndSetLabels(prNumber, [`tenant/${tenant}`, `app/${application}`, `env/${environment}`, `service/${service}`])
+  await ghClient.createAndSetLabels(prNumber, [`tenant/${tenant}`, `app/${application}`, `env/${environment}`, `service/${service}`])
 
 
   //ADD REVIEWERS
