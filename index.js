@@ -64,7 +64,7 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
 
   const prTitle = `Service image update \`${newImage}\``; 
   let prBody = `Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
-  prBody += `Updated image \`${JSON.stringify(oldImageName)}\` to \`${newImage}\` in service \`${JSON.stringify(service)}\``;
+  prBody += `Updated image \`${oldImageName}\` to \`${newImage}\` in service \`${service}\``;
 
   //CREATE PULL REQUEST
   // TODO: if there is already a PR for the branchName, get the number and use it
