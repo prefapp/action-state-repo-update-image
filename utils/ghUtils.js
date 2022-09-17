@@ -62,11 +62,21 @@ class ghUtils {
   }
 
   async createLabel(newLabel) {
+    let selectedColor = "7e7c7a"
+    if (newLabel.includes('app/')){
+      selectedColor = 'ac1d1c'
+    } else if (newLabel.includes('tenant/')) {
+      selectedColor = '234099'
+    } else if (newLabel.includes('env/')) {
+      selectedColor = '33810b'
+    } else if (newLabel.includes('service/')) {
+      selectedColor = 'f1c232'
+    }
     const inputs = {
       owner: this.repoOwner,
       repo: this.repoName,
       name: newLabel,
-      // we should calculate the color based on the tag prefix and add it here
+      color: selectedColor,
     }
     const ghResponse = await this.octokit.rest.issues.createLabel(inputs);
     return ghResponse;
