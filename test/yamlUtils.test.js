@@ -72,7 +72,7 @@ test('modifyImage failure', () => {
 
 });
 
-
+/*
 test('modifyServicesImage correct execution', () => {
   // you need 2 changes of each to make sure it changes
   const services = ["app-server", "app-api", "app-client"];
@@ -95,3 +95,4 @@ test('modifyServicesImage correct execution', () => {
   expect(iemagesDesApp1Restore["app-api"]["image"]).toEqual("foo/common:bar");
 
 });
+*/

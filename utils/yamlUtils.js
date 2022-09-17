@@ -55,6 +55,7 @@ class yamlUtils {
     return oldValue;
   }
 
+  /*
   static modifyServicesImage(tenant, application, environment, services, newImage) {
     let oldImages = [];
     if (services.length === 0){
@@ -67,7 +68,7 @@ class yamlUtils {
 
     return oldImages;
 
-  }
+  }*/
 }
 
 module.exports = yamlUtils;

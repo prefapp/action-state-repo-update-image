@@ -22,7 +22,7 @@ async function run() {
     for (const inputs of input_matrix.images) {
       core.info("\n\n \u001b[44m Updating image for inputs: \u001b[0m")
       core.info(JSON.stringify(inputs))
-      await openPRwithNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_names, inputs.image, inputs.reviewers)
+      await openPRwithNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_name, inputs.image, inputs.reviewers)
     }
       
   } catch (error) {
@@ -30,7 +30,7 @@ async function run() {
   }
 }
 
-async function openPRwithNewImage(ghClient, tenant, application, environment, services, newImage, reviewers = []) {
+async function openPRwithNewImage(ghClient, tenant, application, environment, service, newImage, reviewers = []) {
   //CALCULATE BRANCH NAME
   const branchName = inputUtils.createBranchName(tenant, application, environment);
     
@@ -41,27 +41,28 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   await exec.exec("git checkout -b " + branchName);
 
   //MODIFY SERVICES IMAGE
-  const oldImages = yamlUtils.modifyServicesImage(tenant, application, environment, services, newImage);
-
-  if (oldImages.length === 0){
-    core.info(`Image is the same found in all services!!!`);
-    core.info(`Skipping PR for ${tenant}/${application}/${environment} - services: ${JSON.stringify(services)} `)
+  const oldImageName = yamlUtils.modifyImage(tenant, application, environment, service, newImage);
+  
+  if (oldImageName === newImage) {
+    core.info(`Image did not change!`);
+    core.info(`Skipping PR for ${tenant}/${application}/${environment}/${service} with old=newImage=${newImage}} `)
     return
-  } 
+  }
+
 
   //PUSH CHANGES TO ORIGIN
   await exec.exec("git add .");
   try{
     await exec.exec('git commit -m "feat: Image values updated"');
   }catch(e){
-    console.log(`ERROR TRYING TO COMMIT CHANGES!! inputs: ${JSON.stringify({tenant, application, environment, services, newImage})}. Error: ${e}`);
+    console.log(`ERROR TRYING TO COMMIT CHANGES!! inputs: ${JSON.stringify({tenant, application, environment, service, newImage})}. Error: ${e}`);
     return
   }
   await exec.exec("git push origin " + branchName);
 
   const prTitle = `Updated image \`${newImage}\` for tenant \`${tenant}\` in application \`${application}\` and env \`${environment}\``; 
   let prBody = `This is an automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
-  prBody += `Updated images \`${JSON.stringify(oldImages)}\` to \`${newImage}\` in services \`${JSON.stringify(services)}\``;
+  prBody += `Updated image \`${JSON.stringify(oldImageName)}\` to \`${newImage}\` in service \`${JSON.stringify(service)}\``;
 
   //CREATE PULL REQUEST
   const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
@@ -90,7 +91,7 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
       core.info(tenant + "/" + application + "/" + environment + " does NOT allow automerge!")
     }
   } catch (e) {
-    const errorMsg = 'Problem reading AUTO_MERGE file. Setting automerge to false. ' + e
+    const errorMsg = 'Problem reading AUTO_MERGE marker file. Setting automerge to false. ' + e
     core.info(errorMsg);
   }      
 }

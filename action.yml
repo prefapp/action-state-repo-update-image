@@ -6,23 +6,30 @@ inputs:
   input_matrix:
     description: >
       Inputs in the format:
-        [ 
-          {
-            tenant: 'tenant1',
-            app: 'release_foo',
-            env: 'pre',
-            service_names: [ 'hello' ],
-            image: 'test-service:last_prerelease_default',
-            reviewers: [ 'test@prefapp.es' ]  // this parameter (and only) is optional
-          }
-        ]
+        {
+          "images": [
+            {
+              "tenant": "tenant1",
+              "app": "reportApp",
+              "env": "dev",
+              "service_name": "proxy",
+              "image": "image_proxy:tag",
+              "reviewers": ["userName"]
+            },
+            {
+              "tenant": "tenant1",
+              "app": "pollingApp",
+              "env": "pre",
+              "service_name": "dns",
+              "image": "image_dns:tag",
+              "reviewers": ["userName"]
+            }
+          ]
+        }
     required: true
-  branch_name:
-    description: 'Name of the new branch used to pull request'
-    required: false
-    default: ''
   token:
     description: >
+      (Default value should not be messed with)
       Personal access token (PAT) used to fetch the repository. The PAT is configured
       with the local git config, which enables your scripts to run authenticated git
       commands. The post-job step removes the PAT.
