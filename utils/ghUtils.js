@@ -50,7 +50,7 @@ class ghUtils {
     return ghResponse;
   }
 
-  async addLabels(prNumber, labels) {
+  async setPRLabels(prNumber, labels) {
     const inputs = {
       owner: this.repoOwner,
       repo: this.repoName,
@@ -88,7 +88,7 @@ class ghUtils {
         this.createLabel(label)
       }
     }
-    return await this.addPRLabels(prNumber, labels)
+    return await this.setPRLabels(prNumber, labels)
   }  
 
 }
