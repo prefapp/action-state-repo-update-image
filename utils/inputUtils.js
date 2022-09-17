@@ -9,10 +9,10 @@ class inputUtils {
     return array;
   }
 
-  static createBranchName(tenant, app, env){
+  static createBranchName(tenant, app, env, svc){
     
-    const timestamp = new Date().getTime() % 1000;
-    return `automated/update-image-${tenant}-${app}-${env}-${timestamp}`;
+    //const timestamp = new Date().getTime() % 1000;
+    return `automated/update-image-${tenant}-${app}-${env}-${svc}`;
     
   }
 

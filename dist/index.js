@@ -11608,7 +11608,7 @@ class ghUtils {
       issue_number: prNumber,
       labels 
     }
-    const ghResponse = await this.octokit.rest.issues.addLabels(inputs);
+    const ghResponse = await this.octokit.rest.issues.setLabels(inputs);
     return ghResponse;
   }
 
@@ -11673,10 +11673,10 @@ class inputUtils {
     return array;
   }
 
-  static createBranchName(tenant, app, env){
+  static createBranchName(tenant, app, env, svc){
     
-    const timestamp = new Date().getTime() % 1000;
-    return `automated/update-image-${tenant}-${app}-${env}-${timestamp}`;
+    //const timestamp = new Date().getTime() % 1000;
+    return `automated/update-image-${tenant}-${app}-${env}-${svc}`;
     
   }
 
@@ -11977,12 +11977,14 @@ async function run() {
 
 async function openPRwithNewImage(ghClient, tenant, application, environment, service, newImage, reviewers = []) {
   //CALCULATE BRANCH NAME
-  const branchName = inputUtils.createBranchName(tenant, application, environment);
+  const branchName = inputUtils.createBranchName(tenant, application, environment, service);
     
   //CREATE BRANCH
   await exec.exec("git stash");
   await exec.exec("git checkout main");
   await exec.exec("git reset --hard origin/main");
+
+  // TODO: if this checkout fails then the branch already exists
   await exec.exec("git checkout -b " + branchName);
 
   //MODIFY SERVICES IMAGE
@@ -12005,11 +12007,12 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   }
   await exec.exec("git push origin " + branchName);
 
-  const prTitle = `Updated image \`${newImage}\` for tenant \`${tenant}\` in application \`${application}\` and env \`${environment}\``; 
+  const prTitle = `Service image update \`${newImage}\``; 
   let prBody = `Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
   prBody += `Updated image \`${JSON.stringify(oldImageName)}\` to \`${newImage}\` in service \`${JSON.stringify(service)}\``;
 
   //CREATE PULL REQUEST
+  // TODO: if there is already a PR for the branchName, get the number and use it
   const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
   core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
   

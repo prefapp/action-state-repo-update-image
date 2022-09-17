@@ -57,7 +57,7 @@ class ghUtils {
       issue_number: prNumber,
       labels 
     }
-    const ghResponse = await this.octokit.rest.issues.addLabels(inputs);
+    const ghResponse = await this.octokit.rest.issues.setLabels(inputs);
     return ghResponse;
   }
 
