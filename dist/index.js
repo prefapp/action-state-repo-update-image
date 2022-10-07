@@ -5,7 +5,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const exec = __nccwpck_require__(1514);
-
+const io = __nccwpck_require__(6734);
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
@@ -26,53 +26,55 @@ class PullRequestBuilder {
     async openPRUpdatingImage(ghClient, yamlUtils, core) {
         // 1. CREATE BRANCH or WIPE IT IF IT ALREADY EXISTS
         if (await this.createPRBranchFrom(this.sourceBranch)) {
-            core.info(`Branch ${this.branchName} does not exist in remote, creating one!`);
+            core.info(io.green(`Branch ${this.branchName} does not exist in remote, creating one!`));
         } else {
-            core.info(`Branch ${this.branchName} already existing. Re-set to origin/${this.sourceBranch}`)
+            core.info(io.green(`Branch ${this.branchName} already existing. Re-set to origin/${this.sourceBranch}`))
         }
 
         // 2. MODIFY SERVICES' IMAGE INSIDE images.yaml
         let oldImage
         try {
             oldImage = this.updateImageInFile(yamlUtils)
+            core.info(io.green(`File updated! Old image value: ${oldImage}`));
         } catch (e) {
-            core.info(`Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`);
-            core.info(`Image did not change! old=newImage=${this.newImage} `)
+            core.info(io.yellow(`Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`));
+            core.info(io.yellow(`Image did not change! old=newImage=${this.newImage} `))
             return
         }
 
         // 3. PUSH CHANGES TO ORIGIN
         try {
+            core.info(io.green(`Pushing changes...`));
             await this.sedUpdatedImageFileToOrigin()
         } catch (e) {
-            core.info(`ERROR TRYING TO COMMIT CHANGES!! Error: ${e}`);
+            core.info(io.red(`ERROR TRYING TO COMMIT CHANGES!! Error: ${e}`));
         }
 
         // 4. CREATE PULL REQUEST
         let prNumber = await ghClient.branchHasOpenPR(this.branchName)
         if (prNumber === 0) {
             prNumber = await this.openNewPullRequest(ghClient, oldImage)
-            core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
+            core.info(io.green('Created PR number: ') + prNumber);
         } else {
-            core.info(`\u001b[32mThere is an open PR already for branch ${this.branchName}, pr_number=${prNumber}!\u001b[0m `);
+            core.info(io.yellow(`There is an open PR already for branch ${this.branchName}, pr_number=${prNumber}!`));
         }
 
         // 5. ADD PR LABELS and REVIEWERS
-        core.info('Adding labels and PR reviewers...')
+        core.info(io.green('Adding labels and PR reviewers...'))
         try {
             await this.setPRLabels(ghClient, prNumber)
             const reviewers = await this.addPRReviewers(ghClient, prNumber)
-            core.info(`Added reviewers: ${JSON.stringify(reviewers)}`);
+            core.info(io.green(`Added reviewers: ${JSON.stringify(reviewers)}`));
         } catch (e) {
             core.info(e);
-            core.info('No reviewers were added!');
+            core.info(io.yellow('No reviewers were added!'));
         }
 
         // 6. DETERMINE AUTO_MERGE AND TRY TO MERGE
         if (await this.tryToMerge(ghClient, yamlUtils, prNumber)) {
-            core.info('Successfully merged PR number: ' + prNumber);
+            core.info(io.green('Successfully merged PR number: ' + prNumber));
         } else {
-            core.info('PR was not merged')
+            core.info(io.yellow('PR was not merged'));
         }
     }
 
@@ -15125,8 +15127,6 @@ class ghUtils {
       title: title,
       body: body
     }
-    console.log("PR INPUTS: ");
-    console.log(prInputs);
 
     const ghResponse = await this.octokit.rest.pulls.create(prInputs);
     return ghResponse.data.number;
@@ -15243,6 +15243,46 @@ class ghUtils {
 }
 
 module.exports = ghUtils;
+
+
+/***/ }),
+
+/***/ 6734:
+/***/ ((module) => {
+
+class IOUtils {
+
+  static commaStringToArray(commaStr){
+    commaStr = commaStr.trim();
+    let array = commaStr.split(",");
+  
+    array = array.map( str => str.trim())
+                       .filter( str => str.trim().length > 0);
+    return array;
+  }
+
+  // Utils to print colored strings in the console using ansii scape codes
+  static green(str) {
+    return `\u001b[32m${str}\u001b[0m`
+  }
+  static yellow(str) {
+    return `\u001b[33m${str}\u001b[0m`
+  }
+  static red(str) {
+    return `\u001b[31m${str}\u001b[0m`
+  }
+  static blue(str) {
+    return `\u001b[34m${str}\u001b[0m`
+  }
+  static blueBg(str) {
+    return `\u001b[44m${str}\u001b[0m`
+  }
+  static italic(str) {
+    return `\u001b[3m${str}\u001b[0m`
+  }
+}
+
+module.exports = IOUtils;
 
 
 /***/ }),
@@ -15509,7 +15549,7 @@ const ghUtils = __nccwpck_require__(6270);
 const yamlUtils = __nccwpck_require__(5252);
 const PullRequestBuilder = __nccwpck_require__(5426)
 const PullRequestInputs = __nccwpck_require__(1722)
-
+const io = __nccwpck_require__(6734)
 
 async function run() {
   try {
@@ -15533,11 +15573,11 @@ async function run() {
           inputs['image'],
           inputs['reviewers']
       )
-      core.info("\n\n\u001b[44m✍🏼 Updating image for inputs: \u001b[0m\n" + prInputs.print())
+      core.info(io.blueBg("🏼 Updating image for inputs: ") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())
       await prBuilder.openPRUpdatingImage(ghClient, yamlUtils, core)
     }
-      
+
   } catch (error) {
     core.setFailed(error.message);
   }

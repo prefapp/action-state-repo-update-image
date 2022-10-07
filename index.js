@@ -5,7 +5,7 @@ const ghUtils = require('./utils/GhUtils.js');
 const yamlUtils = require('./utils/YamlUtils.js');
 const PullRequestBuilder = require('./model/PullRequestBuilder')
 const PullRequestInputs = require('./model/PullRequestInputs')
-
+const io = require('./utils/IOUtils')
 
 async function run() {
   try {
@@ -29,11 +29,11 @@ async function run() {
           inputs['image'],
           inputs['reviewers']
       )
-      core.info("\n\n\u001b[44m✍🏼 Updating image for inputs: \u001b[0m\n" + prInputs.print())
+      core.info(io.blueBg("🏼 Updating image for inputs: ") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())
       await prBuilder.openPRUpdatingImage(ghClient, yamlUtils, core)
     }
-      
+
   } catch (error) {
     core.setFailed(error.message);
   }

@@ -25,8 +25,6 @@ class ghUtils {
       title: title,
       body: body
     }
-    console.log("PR INPUTS: ");
-    console.log(prInputs);
 
     const ghResponse = await this.octokit.rest.pulls.create(prInputs);
     return ghResponse.data.number;

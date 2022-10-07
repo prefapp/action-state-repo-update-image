@@ -25,6 +25,9 @@ class IOUtils {
   static blueBg(str) {
     return `\u001b[44m${str}\u001b[0m`
   }
+  static italic(str) {
+    return `\u001b[3m${str}\u001b[0m`
+  }
 }
 
 module.exports = IOUtils;
