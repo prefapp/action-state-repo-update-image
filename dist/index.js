@@ -12075,7 +12075,7 @@ async function openPRforNewImage(ghClient, tenant, application, environment, ser
   // TODO: if there is already a PR for the branchName, get the number and use it
   let prNumber = await ghClient.branchHasOpenPR(branchName)
   if (prNumber === 0) {
-    const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
+    prNumber = await ghClient.createPr(branchName, prTitle, prBody)
     core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
   } else {
     core.info(`\u001b[32mThere is an open PR already for branch ${branchName}, pr_number=${prNumber}!\u001b[0m `);
