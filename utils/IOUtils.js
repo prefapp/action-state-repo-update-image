@@ -9,18 +9,6 @@ class IOUtils {
     return array;
   }
 
-  /**
-   * It is important ot create consistent branch names as the action's idempotency relies on the branch name as the key
-   * @param tenant
-   * @param app
-   * @param env
-   * @param svc
-   * @returns {string}
-   */
-  static createBranchName(tenant, app, env, svc){
-    return `automated/update-image-${tenant}-${app}-${env}-${svc}`;
-  }
-
   // Utils to print colored strings in the console using ansii scape codes
   static green(str) {
     return `\u001b[32m${str}\u001b[0m`

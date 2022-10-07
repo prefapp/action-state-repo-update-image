@@ -1,4 +1,4 @@
-const yamlUtils = require('../utils/yamlUtils');
+const yamlUtils = require('../utils/YamlUtils.js');
 
 
 test('determineAutoMerge file not found', () => {
