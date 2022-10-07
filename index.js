@@ -3,8 +3,8 @@ const exec = require('@actions/exec');
 const github = require('@actions/github');
 const ghUtils = require('./utils/GhUtils.js');
 const yamlUtils = require('./utils/YamlUtils.js');
-import {PullRequestBuilder} from './model/PullRequestBuilder'
-import {PullRequestInputs} from './model/PullRequestInputs'
+const PullRequestBuilder = require('./model/PullRequestBuilder')
+const PullRequestInputs = require('./model/PullRequestInputs')
 
 
 async function run() {
