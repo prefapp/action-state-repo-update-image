@@ -13,6 +13,9 @@ class IOUtils {
   static green(str) {
     return `\u001b[32m${str}\u001b[0m`
   }
+  static bGreen(str) {
+    return IOUtils.green(IOUtils.bold(str))
+  }
   static yellow(str) {
     return `\u001b[33m${str}\u001b[0m`
   }
@@ -27,6 +30,9 @@ class IOUtils {
   }
   static italic(str) {
     return `\u001b[3m${str}\u001b[0m`
+  }
+  static bold(str) {
+    return `\u001b[1m${str}\u001b[0m`
   }
 }
 

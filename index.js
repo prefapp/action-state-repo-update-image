@@ -29,7 +29,7 @@ async function run() {
           inputs['image'],
           inputs['reviewers']
       )
-      core.info(io.blueBg("🏼 Updating image for inputs: ") + io.italic(prInputs.print()))
+      core.info("\n\n > ✍️" + io.blueBg("Updating image for inputs: ") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())
       await prBuilder.openPRUpdatingImage(ghClient, yamlUtils, core)
     }

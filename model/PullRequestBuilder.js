@@ -19,17 +19,18 @@ class PullRequestBuilder {
      */
     async openPRUpdatingImage(ghClient, yamlUtils, core) {
         // 1. CREATE BRANCH or WIPE IT IF IT ALREADY EXISTS
+        core.info(io.bGreen(`> Creating neww branch ${this.branchName}...`));
         if (await this.createPRBranchFrom(this.sourceBranch)) {
-            core.info(io.green(`Branch ${this.branchName} does not exist in remote, creating one!`));
+            core.info(io.bGreen(`> Branch ${this.branchName} does not exist in remote, so a new one was created!`));
         } else {
-            core.info(io.green(`Branch ${this.branchName} already existing. Re-set to origin/${this.sourceBranch}`))
+            core.info(io.bGreen(`> Branch ${this.branchName} already existed. It was re-set to origin/${this.sourceBranch}`))
         }
 
         // 2. MODIFY SERVICES' IMAGE INSIDE images.yaml
         let oldImage
         try {
             oldImage = this.updateImageInFile(yamlUtils)
-            core.info(io.green(`File updated! Old image value: ${oldImage}`));
+            core.info(io.bGreen(`> File updated! Old image value: ${oldImage}`));
         } catch (e) {
             core.info(io.yellow(`Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`));
             core.info(io.yellow(`Image did not change! old=newImage=${this.newImage} `))
@@ -38,7 +39,7 @@ class PullRequestBuilder {
 
         // 3. PUSH CHANGES TO ORIGIN
         try {
-            core.info(io.green(`Pushing changes...`));
+            core.info(io.bGreen(`> Pushing changes...`));
             await this.sedUpdatedImageFileToOrigin()
         } catch (e) {
             core.info(io.red(`ERROR TRYING TO COMMIT CHANGES!! Error: ${e}`));
@@ -48,27 +49,27 @@ class PullRequestBuilder {
         let prNumber = await ghClient.branchHasOpenPR(this.branchName)
         if (prNumber === 0) {
             prNumber = await this.openNewPullRequest(ghClient, oldImage)
-            core.info(io.green('Created PR number: ') + prNumber);
+            core.info(io.bGreen('> Created PR number: ') + prNumber);
         } else {
-            core.info(io.yellow(`There is an open PR already for branch ${this.branchName}, pr_number=${prNumber}!`));
+            core.info(io.yellow(`> There is an open PR already for branch ${this.branchName}, pr_number=${prNumber}!`));
         }
 
         // 5. ADD PR LABELS and REVIEWERS
-        core.info(io.green('Adding labels and PR reviewers...'))
+        core.info(io.bGreen('> Adding labels and PR reviewers...'))
         try {
             await this.setPRLabels(ghClient, prNumber)
             const reviewers = await this.addPRReviewers(ghClient, prNumber)
-            core.info(io.green(`Added reviewers: ${JSON.stringify(reviewers)}`));
+            core.info(io.bGreen(`> Added reviewers: ${JSON.stringify(reviewers)}`));
         } catch (e) {
             core.info(e);
-            core.info(io.yellow('No reviewers were added!'));
+            core.info(io.yellow('> No reviewers were added!'));
         }
 
         // 6. DETERMINE AUTO_MERGE AND TRY TO MERGE
         if (await this.tryToMerge(ghClient, yamlUtils, prNumber)) {
-            core.info(io.green('Successfully merged PR number: ' + prNumber));
+            core.info(io.bGreen('> Successfully merged PR number: ' + prNumber));
         } else {
-            core.info(io.yellow('PR was not merged'));
+            core.info(io.yellow('> PR was not merged'));
         }
     }
 
