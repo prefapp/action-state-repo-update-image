@@ -39,6 +39,7 @@ async function openPRforNewImage(ghClient, tenant, application, environment, ser
   await exec.exec("git checkout main");
   await exec.exec("git reset --hard origin/main");
   try {
+    await exec.exec("git fetch origin " + branchName);
     await exec.exec("git checkout " + branchName);
     await exec.exec("git reset --hard origin/main");
   } catch (e) {
