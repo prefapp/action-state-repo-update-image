@@ -11645,7 +11645,47 @@ class ghUtils {
       }
     }
     return await this.setPRLabels(prNumber, labels)
-  }  
+  }
+
+  /**
+   * This function return a dict where the key is the branch name of the pr and the value is the PR number
+   * It is used to determine if a branch already has an open pr
+   */
+  async getOpenPRs() {
+    const inputs = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+      state: 'open',
+      per_page: 1
+    }
+    try {
+      const ghResponse = await this.octokit.paginate(
+          this.octokit.rest.pulls.list,
+          inputs,
+          (response) => response.data
+      )
+      const openPRs = {}
+      ghResponse.forEach(pr => openPRs[pr.head.ref] = pr.number)
+      return openPRs
+    } catch (e) {
+      throw new Error(`Error trying to read open pull request with inputs=${JSON.stringify(inputs)} E: ${e}`)
+    }
+  }
+
+  /**
+   * Return 0 is there is no PR opened for that branch, PR number otherwise
+   * @param branchName
+   * @returns {Promise<number|*>}
+   */
+  async branchHasOpenPR(branchName) {
+    const openPRs = await this.getOpenPRs()
+    for (const openPRname in openPRs) {
+      if (openPRname === branchName) {
+        return openPRs[openPRname]
+      }
+    }
+    return 0
+  }
 
 }
 
@@ -12012,8 +12052,13 @@ async function openPRforNewImage(ghClient, tenant, application, environment, ser
 
   //CREATE PULL REQUEST
   // TODO: if there is already a PR for the branchName, get the number and use it
-  const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
-  core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
+  let prNumber = ghClient.branchHasOpenPR(branchName)
+  if (prNumber === 0) {
+    const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
+    core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
+  } else {
+    core.info(`\u001b[32mThere is an open PR already for branch ${branchName}, number=${prNumber}:\u001b[0m `);
+  }
   
   core.info('Adding labels to the PR...')
   await ghClient.createAndSetLabels(prNumber, [`tenant/${tenant}`, `app/${application}`, `env/${environment}`, `service/${service}`])
