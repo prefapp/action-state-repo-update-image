@@ -9,7 +9,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "prepare": "ncc build index.js -o dist --source-map --license licenses.txt",
+    "prepare": "ncc build index.js -o dist --source-map --license licenses.txt && npm run copy:schema",
+    "copy:schema": "cp ./schemas/state_repo_update_image_schema.json ./dist/state_repo_update_image_schema.json",
     "test": "jest",
     "all": "npm run lint && npm run prepare && npm run test"
   },
