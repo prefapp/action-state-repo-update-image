@@ -6,6 +6,8 @@ const yamlUtils = require('./utils/YamlUtils.js');
 const PullRequestBuilder = require('./model/PullRequestBuilder')
 const PullRequestInputs = require('./model/PullRequestInputs')
 const io = require('./utils/IOUtils')
+const ValidateInputs = require('./schemas/ValidateInputs')
+
 
 async function run() {
   try {
@@ -13,9 +15,8 @@ async function run() {
     const input_matrix = JSON.parse(core.getInput('input_matrix'));
 
     core.info(JSON.stringify(input_matrix))
-    
-    // TODO: validate input matrix against json schema
-    //       HEY, THIS IS IMPORTANT !!!!
+    core.info(io.blueBg('· Validating input against JSON Schema...'))
+    ValidateInputs.checkValidInput(input_matrix)
 
     await exec.exec("git config --global user.name github-actions");
     await exec.exec("git config --global user.email github-actions@github.com");
@@ -29,7 +30,7 @@ async function run() {
           inputs['image'],
           inputs['reviewers']
       )
-      core.info("\n\n > ✍️" + io.blueBg("Updating image for inputs: ") + io.italic(prInputs.print()))
+      core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())
       await prBuilder.openPRUpdatingImage(ghClient, yamlUtils, core)
     }

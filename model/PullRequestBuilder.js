@@ -107,7 +107,7 @@ class PullRequestBuilder {
         //COMMIT LOCAL CHANGES
         await exec.exec("git add .");
         try{
-            await exec.exec('git commit -m "feat: Image values updated"');
+            await exec.exec('git commit -m "feat: Image value updated to latest version"');
         }catch(e){
             console.log(e)
             throw new Error('Unable to commit file!')

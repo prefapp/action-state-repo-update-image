@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "type": "object",
+  "default": {},
+  "title": "Input Validation for action-state-repo-update-image",
+  "required": [
+    "version",
+    "images"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 4
+    },
+    "images": {
+      "type": "array",
+      "default": [],
+      "title": "The images Schema",
+      "items": {
+        "type": "object",
+        "default": {},
+        "title": "A Schema",
+        "required": [
+          "tenant",
+          "app",
+          "env",
+          "service_name",
+          "image",
+          "reviewers"
+        ],
+        "properties": {
+          "tenant": {
+            "type": "string"
+          },
+          "app": {
+            "type": "string"
+          },
+          "env": {
+            "type": "string"
+          },
+          "service_name": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "reviewers": {
+            "type": "array",
+            "default": [],
+            "title": "string array of github slugs",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [{
+    "version": 4,
+    "images": [{
+      "tenant": "tenant1",
+      "app": "release1",
+      "env": "dev",
+      "service_name": "proxy",
+      "image": "image_proxy:tag",
+      "reviewers": [
+        "AlbertFemenias"
+      ]
+    }]
+  }]
+}
