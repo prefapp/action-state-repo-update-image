@@ -25,8 +25,7 @@ class ghUtils {
     console.log(prInputs);
 
     const ghResponse = await this.octokit.rest.pulls.create(prInputs);
-    const prNumber = ghResponse.data.number;
-    return prNumber;
+    return ghResponse.data.number;
   }
 
   async prAddReviewers(prNumber, reviewers){
@@ -36,8 +35,7 @@ class ghUtils {
       pull_number: prNumber,
       reviewers: reviewers // string array ["rv1", "rv2"]
     }
-    const ghResponse = await this.octokit.rest.pulls.requestReviewers(addReviewersInputs);
-    return ghResponse;
+    return await this.octokit.rest.pulls.requestReviewers(addReviewersInputs);
   }
 
   async mergePr(prNumber){
@@ -46,8 +44,7 @@ class ghUtils {
       repo: this.repoName,
       pull_number: prNumber
     }
-    const ghResponse = await this.octokit.rest.pulls.merge(mergePrInputs);
-    return ghResponse;
+    return await this.octokit.rest.pulls.merge(mergePrInputs);
   }
 
   async setPRLabels(prNumber, labels) {
@@ -57,8 +54,7 @@ class ghUtils {
       issue_number: prNumber,
       labels 
     }
-    const ghResponse = await this.octokit.rest.issues.setLabels(inputs);
-    return ghResponse;
+    return await this.octokit.rest.issues.setLabels(inputs);
   }
 
   async createLabel(newLabel) {
@@ -78,8 +74,7 @@ class ghUtils {
       name: newLabel,
       color: selectedColor,
     }
-    const ghResponse = await this.octokit.rest.issues.createLabel(inputs);
-    return ghResponse;
+    return await this.octokit.rest.issues.createLabel(inputs);
   }
 
   async getRepoLabels() {
@@ -95,7 +90,7 @@ class ghUtils {
     const repoLabels = await this.getRepoLabels()
     for (const label of labels) {
       if (!repoLabels.includes(label)) {
-        this.createLabel(label)
+        await this.createLabel(label)
       }
     }
     return await this.setPRLabels(prNumber, labels)

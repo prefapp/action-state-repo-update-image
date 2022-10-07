@@ -22,7 +22,7 @@ async function run() {
     for (const inputs of input_matrix.images) {
       core.info("\n\n \u001b[44m Updating image for inputs: \u001b[0m")
       core.info(JSON.stringify(inputs))
-      await openPRwithNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_name, inputs.image, inputs.reviewers)
+      await openPRforNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_name, inputs.image, inputs.reviewers)
     }
       
   } catch (error) {
@@ -30,17 +30,21 @@ async function run() {
   }
 }
 
-async function openPRwithNewImage(ghClient, tenant, application, environment, service, newImage, reviewers = []) {
+async function openPRforNewImage(ghClient, tenant, application, environment, service, newImage, reviewers = []) {
   //CALCULATE BRANCH NAME
   const branchName = inputUtils.createBranchName(tenant, application, environment, service);
-    
-  //CREATE BRANCH
+
+  //CREATE BRANCH or WIPE IT IF IT ALREADY EXISTS
   await exec.exec("git stash");
   await exec.exec("git checkout main");
   await exec.exec("git reset --hard origin/main");
-
-  // TODO: if this checkout fails then the branch already exists
-  await exec.exec("git checkout -b " + branchName);
+  try {
+    await exec.exec("git checkout -b " + branchName);
+  } catch (e) {
+    core.info(`Branch ${branchName} already exists in remote!`);
+    await exec.exec("git checkout " + branchName);
+    await exec.exec("git reset --hard origin/main");
+  }
 
   //MODIFY SERVICES IMAGE
   const oldImageName = yamlUtils.modifyImage(tenant, application, environment, service, newImage);
@@ -50,7 +54,6 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
     core.info(`Skipping PR for ${tenant}/${application}/${environment}/${service} with old=newImage=${newImage}} `)
     return
   }
-
 
   //PUSH CHANGES TO ORIGIN
   await exec.exec("git add .");
@@ -102,4 +105,4 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   }      
 }
 
-run();
+run().then(() => `All work done, bye 👋`);

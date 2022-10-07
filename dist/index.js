@@ -11576,8 +11576,7 @@ class ghUtils {
     console.log(prInputs);
 
     const ghResponse = await this.octokit.rest.pulls.create(prInputs);
-    const prNumber = ghResponse.data.number;
-    return prNumber;
+    return ghResponse.data.number;
   }
 
   async prAddReviewers(prNumber, reviewers){
@@ -11587,8 +11586,7 @@ class ghUtils {
       pull_number: prNumber,
       reviewers: reviewers // string array ["rv1", "rv2"]
     }
-    const ghResponse = await this.octokit.rest.pulls.requestReviewers(addReviewersInputs);
-    return ghResponse;
+    return await this.octokit.rest.pulls.requestReviewers(addReviewersInputs);
   }
 
   async mergePr(prNumber){
@@ -11597,8 +11595,7 @@ class ghUtils {
       repo: this.repoName,
       pull_number: prNumber
     }
-    const ghResponse = await this.octokit.rest.pulls.merge(mergePrInputs);
-    return ghResponse;
+    return await this.octokit.rest.pulls.merge(mergePrInputs);
   }
 
   async setPRLabels(prNumber, labels) {
@@ -11608,8 +11605,7 @@ class ghUtils {
       issue_number: prNumber,
       labels 
     }
-    const ghResponse = await this.octokit.rest.issues.setLabels(inputs);
-    return ghResponse;
+    return await this.octokit.rest.issues.setLabels(inputs);
   }
 
   async createLabel(newLabel) {
@@ -11629,8 +11625,7 @@ class ghUtils {
       name: newLabel,
       color: selectedColor,
     }
-    const ghResponse = await this.octokit.rest.issues.createLabel(inputs);
-    return ghResponse;
+    return await this.octokit.rest.issues.createLabel(inputs);
   }
 
   async getRepoLabels() {
@@ -11646,7 +11641,7 @@ class ghUtils {
     const repoLabels = await this.getRepoLabels()
     for (const label of labels) {
       if (!repoLabels.includes(label)) {
-        this.createLabel(label)
+        await this.createLabel(label)
       }
     }
     return await this.setPRLabels(prNumber, labels)
@@ -11967,7 +11962,7 @@ async function run() {
     for (const inputs of input_matrix.images) {
       core.info("\n\n \u001b[44m Updating image for inputs: \u001b[0m")
       core.info(JSON.stringify(inputs))
-      await openPRwithNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_name, inputs.image, inputs.reviewers)
+      await openPRforNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_name, inputs.image, inputs.reviewers)
     }
       
   } catch (error) {
@@ -11975,17 +11970,21 @@ async function run() {
   }
 }
 
-async function openPRwithNewImage(ghClient, tenant, application, environment, service, newImage, reviewers = []) {
+async function openPRforNewImage(ghClient, tenant, application, environment, service, newImage, reviewers = []) {
   //CALCULATE BRANCH NAME
   const branchName = inputUtils.createBranchName(tenant, application, environment, service);
-    
-  //CREATE BRANCH
+
+  //CREATE BRANCH or WIPE IT IF IT ALREADY EXISTS
   await exec.exec("git stash");
   await exec.exec("git checkout main");
   await exec.exec("git reset --hard origin/main");
-
-  // TODO: if this checkout fails then the branch already exists
-  await exec.exec("git checkout -b " + branchName);
+  try {
+    await exec.exec("git checkout -b " + branchName);
+  } catch (e) {
+    core.info(`Branch ${branchName} already exists in remote!`);
+    await exec.exec("git checkout " + branchName);
+    await exec.exec("git reset --hard origin/main");
+  }
 
   //MODIFY SERVICES IMAGE
   const oldImageName = yamlUtils.modifyImage(tenant, application, environment, service, newImage);
@@ -11995,7 +11994,6 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
     core.info(`Skipping PR for ${tenant}/${application}/${environment}/${service} with old=newImage=${newImage}} `)
     return
   }
-
 
   //PUSH CHANGES TO ORIGIN
   await exec.exec("git add .");
@@ -12009,7 +12007,7 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
 
   const prTitle = `Service image update \`${newImage}\``; 
   let prBody = `Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
-  prBody += `Updated image \`${JSON.stringify(oldImageName)}\` to \`${newImage}\` in service \`${JSON.stringify(service)}\``;
+  prBody += `Updated image \`${oldImageName}\` to \`${newImage}\` in service \`${service}\``;
 
   //CREATE PULL REQUEST
   // TODO: if there is already a PR for the branchName, get the number and use it
@@ -12047,7 +12045,7 @@ async function openPRwithNewImage(ghClient, tenant, application, environment, se
   }      
 }
 
-run();
+run().then(() => `All work done, bye 👋`);
 
 })();
 
