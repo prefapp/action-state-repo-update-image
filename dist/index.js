@@ -12004,7 +12004,7 @@ async function openPRforNewImage(ghClient, tenant, application, environment, ser
     console.log(`ERROR TRYING TO COMMIT CHANGES!! inputs: ${JSON.stringify({tenant, application, environment, service, newImage})}. Error: ${e}`);
     return
   }
-  await exec.exec("git push --force " + branchName);
+  await exec.exec("git push --force origin " + branchName);
 
   const prTitle = `Service image update \`${newImage}\``; 
   let prBody = `Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
