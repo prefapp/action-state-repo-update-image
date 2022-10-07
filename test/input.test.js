@@ -1,4 +1,4 @@
-const inputUtils = require('../utils/inputUtils');
+const inputUtils = require('../utils/IOUtils');
 
 
 test('reviewers to array', async () => {

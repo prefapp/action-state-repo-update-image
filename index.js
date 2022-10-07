@@ -3,7 +3,7 @@ const exec = require('@actions/exec');
 const github = require('@actions/github');
 const ghUtils = require('./utils/ghUtils');
 const yamlUtils = require('./utils/yamlUtils');
-const inputUtils = require('./utils/inputUtils');
+const inputUtils = require('./utils/IOUtils');
 
 
 async function run() {
@@ -20,7 +20,7 @@ async function run() {
     await exec.exec("git config --global user.email github-actions@github.com");
 
     for (const inputs of input_matrix.images) {
-      core.info("\n\n \u001b[44m Updating image for inputs: \u001b[0m")
+      core.info("\n\n\u001b[44m✍🏼 Updating image for inputs: \u001b[0m")
       core.info(JSON.stringify(inputs))
       await openPRforNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_name, inputs.image, inputs.reviewers)
     }
@@ -77,7 +77,7 @@ async function openPRforNewImage(ghClient, tenant, application, environment, ser
     const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
     core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
   } else {
-    core.info(`\u001b[32mThere is an open PR already for branch ${branchName}, number=${prNumber}:\u001b[0m `);
+    core.info(`\u001b[32mThere is an open PR already for branch ${branchName}, pr_number=${prNumber}!\u001b[0m `);
   }
   
   core.info('Adding labels to the PR...')

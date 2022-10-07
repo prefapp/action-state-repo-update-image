@@ -11546,6 +11546,55 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 6734:
+/***/ ((module) => {
+
+class IOUtils {
+
+  static commaStringToArray(commaStr){
+    commaStr = commaStr.trim();
+    let array = commaStr.split(",");
+  
+    array = array.map( str => str.trim())
+                       .filter( str => str.trim().length > 0);
+    return array;
+  }
+
+  /**
+   * It is important ot create consistent branch names as the action's idempotency relies on the branch name as the key
+   * @param tenant
+   * @param app
+   * @param env
+   * @param svc
+   * @returns {string}
+   */
+  static createBranchName(tenant, app, env, svc){
+    return `automated/update-image-${tenant}-${app}-${env}-${svc}`;
+  }
+
+  // Utils to print colored strings in the console using ansii scape codes
+  static green(str) {
+    return `\u001b[32m${str}\u001b[0m`
+  }
+  static yellow(str) {
+    return `\u001b[33m${str}\u001b[0m`
+  }
+  static red(str) {
+    return `\u001b[31m${str}\u001b[0m`
+  }
+  static blue(str) {
+    return `\u001b[34m${str}\u001b[0m`
+  }
+  static blueBg(str) {
+    return `\u001b[44m${str}\u001b[0m`
+  }
+}
+
+module.exports = IOUtils;
+
+
+/***/ }),
+
 /***/ 7120:
 /***/ ((module) => {
 
@@ -11690,34 +11739,6 @@ class ghUtils {
 }
 
 module.exports = ghUtils;
-
-
-/***/ }),
-
-/***/ 8858:
-/***/ ((module) => {
-
-class inputUtils {
-
-  static commaStringToArray(commaStr){
-    commaStr = commaStr.trim();
-    let array = commaStr.split(",");
-  
-    array = array.map( str => str.trim())
-                       .filter( str => str.trim().length > 0);
-    return array;
-  }
-
-  static createBranchName(tenant, app, env, svc){
-    
-    //const timestamp = new Date().getTime() % 1000;
-    return `automated/update-image-${tenant}-${app}-${env}-${svc}`;
-    
-  }
-
-}
-
-module.exports = inputUtils;
 
 
 /***/ }),
@@ -11983,7 +12004,7 @@ const exec = __nccwpck_require__(1514);
 const github = __nccwpck_require__(5438);
 const ghUtils = __nccwpck_require__(7120);
 const yamlUtils = __nccwpck_require__(3520);
-const inputUtils = __nccwpck_require__(8858);
+const inputUtils = __nccwpck_require__(6734);
 
 
 async function run() {
@@ -12000,7 +12021,7 @@ async function run() {
     await exec.exec("git config --global user.email github-actions@github.com");
 
     for (const inputs of input_matrix.images) {
-      core.info("\n\n \u001b[44m Updating image for inputs: \u001b[0m")
+      core.info("\n\n\u001b[44m✍🏼 Updating image for inputs: \u001b[0m")
       core.info(JSON.stringify(inputs))
       await openPRforNewImage(ghClient, inputs.tenant, inputs.app, inputs.env, inputs.service_name, inputs.image, inputs.reviewers)
     }
@@ -12057,7 +12078,7 @@ async function openPRforNewImage(ghClient, tenant, application, environment, ser
     const prNumber = await ghClient.createPr(branchName, prTitle, prBody)
     core.info('\u001b[32mCreated PR number:\u001b[0m ' + prNumber);
   } else {
-    core.info(`\u001b[32mThere is an open PR already for branch ${branchName}, number=${prNumber}:\u001b[0m `);
+    core.info(`\u001b[32mThere is an open PR already for branch ${branchName}, pr_number=${prNumber}!\u001b[0m `);
   }
   
   core.info('Adding labels to the PR...')
