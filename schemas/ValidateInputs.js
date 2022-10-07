@@ -1,6 +1,6 @@
 const Ajv = require("ajv")
 const betterAjvErrors = require('better-ajv-errors').default;
-const schema = require('state_repo_update_image_schema.json');
+const schema = require('./state_repo_update_image_schema.json');
 
 class ValidateInputs {
 
