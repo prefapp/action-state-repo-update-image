@@ -11979,11 +11979,11 @@ async function openPRforNewImage(ghClient, tenant, application, environment, ser
   await exec.exec("git checkout main");
   await exec.exec("git reset --hard origin/main");
   try {
-    await exec.exec("git checkout -b " + branchName);
-  } catch (e) {
-    core.info(`Branch ${branchName} already exists in remote!`);
     await exec.exec("git checkout " + branchName);
     await exec.exec("git reset --hard origin/main");
+  } catch (e) {
+    core.info(`Branch ${branchName} does not exist in remote, creating one!`);
+    await exec.exec("git checkout -b " + branchName);
   }
 
   //MODIFY SERVICES IMAGE
