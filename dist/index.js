@@ -25,11 +25,11 @@ class PullRequestBuilder {
      */
     async openPRUpdatingImage(ghClient, yamlUtils, core) {
         // 1. CREATE BRANCH or WIPE IT IF IT ALREADY EXISTS
-        core.info(io.bGreen(`> Creating neww branch ${this.branchName}...`));
+        core.info(io.bGreen(`> Creating new branch ${this.branchName}...`));
         if (await this.createPRBranchFrom(this.sourceBranch)) {
             core.info(io.bGreen(`> Branch ${this.branchName} does not exist in remote, so a new one was created!`));
         } else {
-            core.info(io.bGreen(`> Branch ${this.branchName} already existed. It was re-set to origin/${this.sourceBranch}`))
+            core.info(io.bGreen(`> Branch ${this.branchName} already existed. It was re-set to origin/${this.sourceBranch}!`))
         }
 
         // 2. MODIFY SERVICES' IMAGE INSIDE images.yaml
