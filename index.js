@@ -22,12 +22,12 @@ async function run() {
 
     for (const inputs of input_matrix.images) {
       const prInputs = new PullRequestInputs(
-          inputs.tenant,
-          inputs.application,
-          inputs.environment,
-          inputs.service,
-          inputs.newImage,
-          inputs.reviewers
+          inputs['tenant'],
+          inputs['app'],
+          inputs['env'],
+          inputs['service_name'],
+          inputs['image'],
+          inputs['reviewers']
       )
       core.info("\n\n\u001b[44m✍🏼 Updating image for inputs: \u001b[0m\n" + prInputs.print())
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())

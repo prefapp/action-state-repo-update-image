@@ -31,7 +31,7 @@ class PullRequestBuilder {
             oldImage = this.updateImageInFile(yamlUtils)
         } catch (e) {
             core.info(`Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`);
-            core.info(`Image did not change! old=newImage=${this.newImage}} `)
+            core.info(`Image did not change! old=newImage=${this.newImage} `)
             return
         }
 
