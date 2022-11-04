@@ -5,88 +5,27 @@
 </p>
 
 
-This action updates image values stored in the state repo. It then creates a pull request and adds reviewers.
+The `prefapp/action-state-repo-update-image` action updates docker image values stored in the state repo. It creates a pull request for each image update, adds the corresponding reviewers as well as custom labels indidating the update coordinates. 
+Each image update will result in an automated PR like:
+
+<img src="./assets/example.png" alt="automated_pr" width="800"/><br><br>
+
+
+Its execution is idempotent: you can ran the action many times and only those new images will be updated via PR. The action reuses the remote branch if it already exists by making a force push (to ensure the PR has only one commit) If the PR already exists, it updates it instead of trying to create a new one.
+
 Looking for the `AUTO_MERGE` in the environment directory, it determines if the PR should be automerged or not.
-> v2 uses config.yaml, v3 does not. Differences explained below.
+
 
 ## Usage
 
-There are now 2 versions of the action: `action-state-repo-update-image@feature/v2` and `action-state-repo-update-image@feature/v3`. The purpose is the same but the state repo structure and inputs required differ a lot.
+There are now 3 versions of the action. The purpose is the same but the state repo structure and inputs required differ a lot. 
 
-### @feature/v2 - No tenants and use of config.yaml
+Latest version is `v4`. Please check [OLD_VERSIONS.md](./OLD_VERSIONS.md) if you are looking for instructions on v2 or v3.
 
-Version 2 of the action requires to be run in a state repo that follows this structure:
-```
-state_repo_name
-├── app1
-│   ├── des
-│   │   └── images.yaml
-│   ├── pre
-│   │   └── images.yaml
-│   └── pro
-│       └── images.yaml
-├── app2
-│   ├── dev
-│   │   └── images.yaml
-│   ├── pre
-│   │   └── images.yaml
-│   └── pro
-│       └── images.yaml
-└── config.yaml
+### State repo
+In this version of the action, all applications MUST belong to tenants and the automerge is defined by the inclusion of an `AUTO_MERGE` markert file in the desired environment. The structure of the repo is all the action needs to figure out how to update the images.
 
-```
-
-Note that environment names can be modified as long as they are expressed in the `config.yaml`. The `config.yaml` defines the repo structure and indicates wether image modifications can be automerged or not:
-
-```
-# config.yaml
-app1:
-  auto_merge:
-    des: true
-    pre: true
-    pro: false
-  services:
-    - app-server
-    - app-client
-    - app-api
-
-app2:
-  auto_merge:
-    dev: true
-    pre: true
-    pro: false
-  services:
-    - proxy
-    - dns
-
-```
-
-You can consume this action by referencing the branch `feature/v2`
-
-```yaml
-steps:
-  - uses: actions/checkout@v2  #NECESSARY
-  - name: Update image  
-      uses: prefapp/action-state-repo-update-image@feature/v2
-      with:
-        application: appfoo
-        environment: dev
-        services: app-server, app-client # comma separated values, only 1 is needed
-        image: image:new
-        reviewers: juana, suhermana #OPTIONAL comma separated values, only 1 is needed
-        pr_title: PR title #OPTIONAL (not recomended) 
-        pr_body: PR body #OPTIONAL (not recomended) 
-        branch_name: automated/update-image #OPTIONAL
-```
-
-### @feature/v3 - Idempotence, use of tenants, AUTO_MERGE and no config.yaml
-
-In the new version of the action, the applications must belong to a tenant and the automerge is defined
-by the inclusion of an `AUTO_MERGE` file in the desired environment. The structure of the repo is all the action needs, the config.yaml is deprecated!
-
-Also, due to the expected external usage, this action is now idempotent. If you try to update an image with the same name and tag it had before nothing will happen: no PR, no commit, just a termination message.
-
-State repo structure required:
+The action requires to be run in a state repo that follows this structure:
 ```
 state_repo_name
 ├── tenant1
@@ -128,24 +67,47 @@ state_repo_name
 ```
 
 
-You can consume this action by referencing the branch `feature/v3`. Careful, **inputs have changed**:
-> Remember that inputs in a github action must always be strings.
+### Action inputs
 
+You can consume this action by referencing the branch `v4`.
+The action must receive a json object with a structure that complies with the [schema](./schemas/state_repo_update_image_schema.json)
+
+Here is an example:
 ```yaml
-steps:
-  - uses: actions/checkout@v2  #NECESSARY
-  - name: Update image  
-      uses: prefapp/action-state-repo-update-image@feature/v3
-      with:
-        tenant: tenant_name
-        application: app1
-        environment: dev
-        service_names: '["api", "client"]' # string! example: ${{ toJSON(github.event.client_payload.service_names) }}
-        image: image:new
-        reviewers: '["juana", "suhermana"]' #OPTIONAL again JSON array
-        pr_title: PR title #OPTIONAL (not recomended) 
-        pr_body: PR body #OPTIONAL (not recomended) 
-        branch_name: automated/update-image #OPTIONAL
+# Workflow running in the state repo
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: prefapp/action-state-repo-update-image@v4
+        env:
+          input_json: |
+            {
+              "version": 4,
+              "images": [
+                {
+                  "tenant": "tenant1",
+                  "app": "release1",
+                  "env": "dev",
+                  "service_name": "proxy",
+                  "image": "image_proxy:tag",
+                  "reviewers": ["GH-User1"]
+                },
+                {
+                  "tenant": "tenant1",
+                  "app": "release1",
+                  "env": "pre",
+                  "service_name": "dns",
+                  "image": "image_dns:tag",
+                  "reviewers": ["GH-User2"]
+                }
+              ]
+            }
+        with:
+          input_matrix: ${{ env.input_json }}
 ```
 
 
