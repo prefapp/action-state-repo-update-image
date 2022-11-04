@@ -1,4 +1,4 @@
-const ghUtils = require('../utils/ghUtils');
+const ghUtils = require('../utils/GhUtils.js');
 
 
 // Mocks

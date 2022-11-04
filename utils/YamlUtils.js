@@ -7,7 +7,7 @@ class yamlUtils {
     
     const path = "./" + tenant + "/" + application + "/" + environment + "/"
     
-    console.log("PATH IS: " + path + "AUTO_MERGE")
+    //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(path)) {
       return (fs.existsSync(path + "AUTO_MERGE"))
     } else {
@@ -37,37 +37,19 @@ class yamlUtils {
 
   static modifyImage(tenant, application, environment, service, newImage) {
     const fileName = "./" + tenant + "/" + application + "/" + environment + "/images.yaml"
-    
-    //console.log("DEBUGG, filename: " + fileName);
-    //console.log("DEBUGG, service " + service);
-
     let imageFile = yamlUtils.loadYaml(fileName);
 
     if (typeof imageFile[service] == 'undefined'){
       throw new Error("Error: no service " + service + " found in file " + fileName);
     }
-    
+
     const oldValue = imageFile[service]["image"];
     imageFile[service]["image"] = newImage;
 
     yamlUtils.saveYaml(imageFile, fileName);
-
     return oldValue;
   }
 
-  static modifyServicesImage(tenant, application, environment, services, newImage) {
-    let oldImages;
-    if (services.length == 0){
-      throw new Error("Error: services array is empty, imposible to modify image!");
-    }
-
-    for (let i = 0; i < services.length; i++){
-      oldImages = yamlUtils.modifyImage(tenant, application, environment, services[i], newImage);
-    }
-
-    return oldImages;
-
-  }
 }
 
 module.exports = yamlUtils;
