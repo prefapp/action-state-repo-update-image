@@ -9,7 +9,7 @@ test('Test constructor', async () => {
     newImage: 'newImage',
     reviewers: 'reviewers'
   }
-  expect(new PullRequestBuilder(prInputs, 'main'))
+  expect(new PullRequestBuilder(prInputs, 'master'))
       .toEqual({
             "application": "application",
             "branchName": "automated/update-image-tenant-application-environment-service",
@@ -17,7 +17,7 @@ test('Test constructor', async () => {
             "newImage": "newImage",
             "reviewers": "reviewers",
             "service": "service",
-            "sourceBranch": "main",
+            "sourceBranch": "master",
             "tenant": "tenant",
       });
 });

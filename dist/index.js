@@ -86,7 +86,7 @@ class PullRequestBuilder {
     async createPRBranchFrom(targetBranch) {
         //CREATE BRANCH or RESET IT IF IT ALREADY EXISTS
         await exec.exec("git stash");
-        await exec.exec("git checkout main");
+        await exec.exec(`git checkout ${this.sourceBranch}`);
         await exec.exec(`git reset --hard origin/${targetBranch}`);
         try {
             await exec.exec("git fetch origin " + this.branchName);
