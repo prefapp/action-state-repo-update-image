@@ -66,7 +66,7 @@ class PullRequestBuilder {
         }
 
         // 6. DETERMINE AUTO_MERGE AND TRY TO MERGE
-        if (await this.tryToMerge(ghClient, yamlUtils, prNumber)) {
+        if (await this.tryToMerge(ghClient, yamlUtils, prNumber, core.getInput("auto_merge_file"))) {
             core.info(io.bGreen('> Successfully merged PR number: ' + prNumber));
         } else {
             core.info(io.yellow('> PR was not merged'));
@@ -158,10 +158,10 @@ class PullRequestBuilder {
      * @param prNumber
      * @returns {Promise<void>}
      */
-    async tryToMerge(ghClient, yamlUtils, prNumber) {
+    async tryToMerge(ghClient, yamlUtils, prNumber, autoMergeFileName) {
         let autoMerge = false
         try {
-            autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment)
+            autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, autoMergeFileName)
             if(autoMerge) {
                 await ghClient.mergePr(prNumber);
             } else {

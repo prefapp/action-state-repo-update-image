@@ -37,7 +37,10 @@ inputs:
       Also when generating a new PAT, select the least scopes necessary.
       [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     default: ${{ github.token }}
-
+  auto_merge_file:
+    description: >
+      Name of the file which presence causes the pr to merge. Default to AUTO_MERGE. 
+    default: AUTO_MERGE
 runs:
   using: 'node16'
   main: 'dist/index.js'
