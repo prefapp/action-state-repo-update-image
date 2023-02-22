@@ -80,8 +80,9 @@ class PullRequestBuilder {
     async createPRBranchFrom(targetBranch) {
         //CREATE BRANCH or RESET IT IF IT ALREADY EXISTS
         await exec.exec("git stash");
-        await exec.exec("git checkout main");
+        await exec.exec(`git checkout ${this.sourceBranch}`);
         await exec.exec(`git reset --hard origin/${targetBranch}`);
+
         try {
             await exec.exec("git fetch origin " + this.branchName);
             await exec.exec("git checkout " + this.branchName);
@@ -161,13 +162,15 @@ class PullRequestBuilder {
     async tryToMerge(ghClient, yamlUtils, prNumber, autoMergeFileName) {
         let autoMerge = false
         try {
-            autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, autoMergeFileName)
-            if(autoMerge) {
-                await ghClient.mergePr(prNumber);
-            } else {
-                console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
-            }
-            return autoMerge // this returns true only if the pr has been merged
+          
+          autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, autoMergeFileName)
+
+          if(autoMerge) {
+            await ghClient.mergePr(prNumber);
+          } else {
+            console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
+          }
+          return autoMerge // this returns true only if the pr has been merged
         } catch (e) {
             console.log('Problem reading AUTO_MERGE marker file. Setting auto-merge to false. ' + e)
         }

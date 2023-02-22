@@ -71,6 +71,7 @@ test('modifyImage failure', () => {
   
 
 });
+<<<<<<< HEAD
 
 /*
 test('modifyServicesImage correct execution', () => {
@@ -96,3 +97,5 @@ test('modifyServicesImage correct execution', () => {
 
 });
 */
+=======
+>>>>>>> 768d1c28096a4931cd46e445d69ba72c31a86d83
