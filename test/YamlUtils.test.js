@@ -9,16 +9,16 @@ test('determineAutoMerge file not found', () => {
 
 test('determineAutoMerge correct execution', () => {
   //console.log(fs.readdirSync('./fixtures'));
-  const autoMergeDes = yamlUtils.determineAutoMerge('fixtures/tenant1', "release1", "pre");
+  const autoMergeDes = yamlUtils.determineAutoMerge('fixtures/tenant1', "release1", "pre", "AUTO_MERGE");
   expect(autoMergeDes).toBe(true);
 
-  const autoMergePre = yamlUtils.determineAutoMerge('fixtures/tenant2', "releaseA", "dev");
+  const autoMergePre = yamlUtils.determineAutoMerge('fixtures/tenant2', "releaseA", "dev", "AUTO_MERGE");
   expect(autoMergePre).toBe(true);
 
-  const autoMergePro = yamlUtils.determineAutoMerge('fixtures/tenant1', "release2", "pro");
+  const autoMergePro = yamlUtils.determineAutoMerge('fixtures/tenant1', "release2", "pro", "AUTO_MERGE");
   expect(autoMergePro).toBe(false);
 
-  const autoMergeDev = yamlUtils.determineAutoMerge('fixtures/tenant2', "releaseB", "pre");
+  const autoMergeDev = yamlUtils.determineAutoMerge('fixtures/tenant2', "releaseB", "pre", "AUTO_MERGE");
   expect(autoMergeDev).toBe(false);
 });
 

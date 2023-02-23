@@ -66,7 +66,7 @@ class PullRequestBuilder {
         }
 
         // 6. DETERMINE AUTO_MERGE AND TRY TO MERGE
-        if (await this.tryToMerge(ghClient, yamlUtils, prNumber)) {
+        if (await this.tryToMerge(ghClient, yamlUtils, prNumber, core.getInput("auto_merge_file"))) {
             core.info(io.bGreen('> Successfully merged PR number: ' + prNumber));
         } else {
             core.info(io.yellow('> PR was not merged'));
@@ -82,6 +82,7 @@ class PullRequestBuilder {
         await exec.exec("git stash");
         await exec.exec(`git checkout ${this.sourceBranch}`);
         await exec.exec(`git reset --hard origin/${targetBranch}`);
+
         try {
             await exec.exec("git fetch origin " + this.branchName);
             await exec.exec("git checkout " + this.branchName);
@@ -158,16 +159,18 @@ class PullRequestBuilder {
      * @param prNumber
      * @returns {Promise<void>}
      */
-    async tryToMerge(ghClient, yamlUtils, prNumber) {
+    async tryToMerge(ghClient, yamlUtils, prNumber, autoMergeFileName) {
         let autoMerge = false
         try {
-            autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment)
-            if(autoMerge) {
-                await ghClient.mergePr(prNumber);
-            } else {
-                console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
-            }
-            return autoMerge // this returns true only if the pr has been merged
+          
+          autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, autoMergeFileName)
+
+          if(autoMerge) {
+            await ghClient.mergePr(prNumber);
+          } else {
+            console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
+          }
+          return autoMerge // this returns true only if the pr has been merged
         } catch (e) {
             console.log('Problem reading AUTO_MERGE marker file. Setting auto-merge to false. ' + e)
         }

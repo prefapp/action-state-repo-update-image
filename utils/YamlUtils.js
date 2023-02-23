@@ -3,13 +3,13 @@ const fs   = require('fs');
 
 class yamlUtils {
 
-  static determineAutoMerge(tenant, application, environment) {
+  static determineAutoMerge(tenant, application, environment, autoMergeFileName) {
     
     const path = "./" + tenant + "/" + application + "/" + environment + "/"
     
     //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(path)) {
-      return (fs.existsSync(path + "AUTO_MERGE"))
+      return (fs.existsSync(path + autoMergeFileName))
     } else {
       throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);  
     }
