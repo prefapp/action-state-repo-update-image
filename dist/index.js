@@ -9,6 +9,7 @@ const io = __nccwpck_require__(6734);
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
+        this.baseFolder = prInputs.baseFolder;
         this.sourceBranch = sourceBranch;
         this.tenant = prInputs.tenant;
         this.application = prInputs.application;
@@ -102,7 +103,7 @@ class PullRequestBuilder {
 
     updateImageInFile(yamlUtils) {
         //MODIFY SERVICES IMAGE
-        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage);
+        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage, this.baseFolder);
         if (oldImageName === this.newImage) {
             throw new Error('The image we were trying to update has not changed!')
         }
@@ -192,7 +193,8 @@ module.exports = PullRequestBuilder;
  * All the inputs needed to update an image via PR
  */
 class PullRequestInputs {
-    constructor(tenant, application, environment, service, newImage, reviewers = []) {
+    constructor(baseFolder, tenant, application, environment, service, newImage, reviewers = []) {
+        this.baseFolder = baseFolder;
         this.tenant = tenant;
         this.application = application;
         this.environment = environment;
@@ -28726,6 +28728,7 @@ module.exports = IOUtils;
 
 const yaml = __nccwpck_require__(1917);
 const fs   = __nccwpck_require__(7147);
+const path = __nccwpck_require__(1017);
 
 class yamlUtils {
 
@@ -28761,8 +28764,15 @@ class yamlUtils {
     }
   }
 
-  static modifyImage(tenant, application, environment, service, newImage) {
-    const fileName = "./" + tenant + "/" + application + "/" + environment + "/images.yaml"
+  static modifyImage(tenant, application, environment, service, newImage, baseFolder) {
+    const fileName = path.join(
+      baseFolder,
+      tenant,
+      application,
+      environment,
+      "/images.yaml"
+    );
+
     let imageFile = yamlUtils.loadYaml(fileName);
 
     if (typeof imageFile[service] == 'undefined'){
@@ -29555,12 +29565,13 @@ async function run() {
 
     for (const inputs of input_matrix.images) {
       const prInputs = new PullRequestInputs(
-          inputs['tenant'],
-          inputs['app'],
-          inputs['env'],
-          inputs['service_name'],
-          inputs['image'],
-          inputs['reviewers']
+        inputs['base_folder'] ?? "",
+        inputs['tenant'],
+        inputs['app'],
+        inputs['env'],
+        inputs['service_name'],
+        inputs['image'],
+        inputs['reviewers'],
       )
       core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())
