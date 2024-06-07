@@ -23,12 +23,13 @@ async function run() {
 
     for (const inputs of input_matrix.images) {
       const prInputs = new PullRequestInputs(
-          inputs['tenant'],
-          inputs['app'],
-          inputs['env'],
-          inputs['service_name'],
-          inputs['image'],
-          inputs['reviewers']
+        inputs['base_folder'] ?? "",
+        inputs['tenant'],
+        inputs['app'],
+        inputs['env'],
+        inputs['service_name'],
+        inputs['image'],
+        inputs['reviewers'],
       )
       core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())

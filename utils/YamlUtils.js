@@ -1,5 +1,6 @@
 const yaml = require('js-yaml');
 const fs   = require('fs');
+const path = require('path');
 
 class yamlUtils {
 
@@ -35,8 +36,15 @@ class yamlUtils {
     }
   }
 
-  static modifyImage(tenant, application, environment, service, newImage) {
-    const fileName = "./" + tenant + "/" + application + "/" + environment + "/images.yaml"
+  static modifyImage(tenant, application, environment, service, newImage, baseFolder) {
+    const fileName = path.join(
+      baseFolder,
+      tenant,
+      application,
+      environment,
+      "/images.yaml"
+    );
+
     let imageFile = yamlUtils.loadYaml(fileName);
 
     if (typeof imageFile[service] == 'undefined'){

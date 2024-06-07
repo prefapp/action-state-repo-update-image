@@ -2,7 +2,8 @@
  * All the inputs needed to update an image via PR
  */
 class PullRequestInputs {
-    constructor(tenant, application, environment, service, newImage, reviewers = []) {
+    constructor(baseFolder, tenant, application, environment, service, newImage, reviewers = []) {
+        this.baseFolder = baseFolder;
         this.tenant = tenant;
         this.application = application;
         this.environment = environment;
