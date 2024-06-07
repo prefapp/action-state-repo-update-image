@@ -3,6 +3,7 @@ const io = require('../utils/IOUtils');
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
+        this.baseFolder = prInputs.baseFolder;
         this.sourceBranch = sourceBranch;
         this.tenant = prInputs.tenant;
         this.application = prInputs.application;
@@ -96,7 +97,7 @@ class PullRequestBuilder {
 
     updateImageInFile(yamlUtils) {
         //MODIFY SERVICES IMAGE
-        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage);
+        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage, this.baseFolder);
         if (oldImageName === this.newImage) {
             throw new Error('The image we were trying to update has not changed!')
         }
