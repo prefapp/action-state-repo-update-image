@@ -1,4 +1,4 @@
-name: 'Update image and create a pull request'
+name: "Update image and create a pull request"
 description: >
   Using state repo structure it updates an image value and the creates 
   a pull request in the same state repo
@@ -43,5 +43,5 @@ inputs:
     default: ${{ github.token }}
 
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"

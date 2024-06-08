@@ -10,14 +10,14 @@ test('Test constructor', async () => {
     reviewers: 'reviewers'
   }
   expect(new PullRequestBuilder(prInputs, 'master'))
-      .toEqual({
-            "application": "application",
-            "branchName": "automated/update-image-tenant-application-environment-service",
-            "environment": "environment",
-            "newImage": "newImage",
-            "reviewers": "reviewers",
-            "service": "service",
-            "sourceBranch": "master",
-            "tenant": "tenant",
-      });
+    .toEqual({
+      "application": "application",
+      "branchName": "automated/update-image-tenant-application-environment-service",
+      "environment": "environment",
+      "newImage": "newImage",
+      "reviewers": "reviewers",
+      "service": "service",
+      "sourceBranch": "master",
+      "tenant": "tenant",
+    });
 });

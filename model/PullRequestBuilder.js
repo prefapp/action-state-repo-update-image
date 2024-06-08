@@ -107,9 +107,9 @@ class PullRequestBuilder {
     async sedUpdatedImageFileToOrigin() {
         //COMMIT LOCAL CHANGES
         await exec.exec("git add .");
-        try{
+        try {
             await exec.exec('git commit -m "feat: Image value updated to latest version"');
-        }catch(e){
+        } catch (e) {
             console.log(e)
             throw new Error('Unable to commit file!')
         }
@@ -163,7 +163,7 @@ class PullRequestBuilder {
         let autoMerge = false
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment)
-            if(autoMerge) {
+            if (autoMerge) {
                 await ghClient.mergePr(prNumber);
             } else {
                 console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")

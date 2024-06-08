@@ -113,9 +113,9 @@ class PullRequestBuilder {
     async sedUpdatedImageFileToOrigin() {
         //COMMIT LOCAL CHANGES
         await exec.exec("git add .");
-        try{
+        try {
             await exec.exec('git commit -m "feat: Image value updated to latest version"');
-        }catch(e){
+        } catch (e) {
             console.log(e)
             throw new Error('Unable to commit file!')
         }
@@ -169,7 +169,7 @@ class PullRequestBuilder {
         let autoMerge = false
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment)
-            if(autoMerge) {
+            if (autoMerge) {
                 await ghClient.mergePr(prNumber);
             } else {
                 console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
@@ -28727,25 +28727,25 @@ module.exports = IOUtils;
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const yaml = __nccwpck_require__(1917);
-const fs   = __nccwpck_require__(7147);
+const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 
 class yamlUtils {
 
   static determineAutoMerge(tenant, application, environment) {
-    
+
     const path = "./" + tenant + "/" + application + "/" + environment + "/"
-    
+
     //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(path)) {
       return (fs.existsSync(path + "AUTO_MERGE"))
     } else {
-      throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);  
+      throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);
     }
- 
+
   }
 
-  static loadYaml(fileName){
+  static loadYaml(fileName) {
     // Get document, or throw exception 
     let configDoc = {}
     try {
@@ -28756,7 +28756,7 @@ class yamlUtils {
     return configDoc;
   }
 
-  static saveYaml(dumpObj, fileName){
+  static saveYaml(dumpObj, fileName) {
     try {
       fs.writeFileSync(fileName, yaml.dump(dumpObj));
     } catch (e) {
@@ -28775,7 +28775,7 @@ class yamlUtils {
 
     let imageFile = yamlUtils.loadYaml(fileName);
 
-    if (typeof imageFile[service] == 'undefined'){
+    if (typeof imageFile[service] == 'undefined') {
       throw new Error("Error: no service " + service + " found in file " + fileName);
     }
 

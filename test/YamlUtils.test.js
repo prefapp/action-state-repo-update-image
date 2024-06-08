@@ -68,6 +68,6 @@ test('modifyImage failure', () => {
     yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "inexistent_service", "foo/common:bar", basePath);
   }).toThrow("Error: no service inexistent_service found in file fixtures/tenant2/releaseB/pro/images.yaml");
 
-  
+
 
 });
