@@ -1,22 +1,23 @@
 const yaml = require('js-yaml');
-const fs   = require('fs');
+const fs = require('fs');
+const path = require('path');
 
 class yamlUtils {
 
   static determineAutoMerge(tenant, application, environment) {
-    
+
     const path = "./" + tenant + "/" + application + "/" + environment + "/"
-    
+
     //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(path)) {
       return (fs.existsSync(path + "AUTO_MERGE"))
     } else {
-      throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);  
+      throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);
     }
- 
+
   }
 
-  static loadYaml(fileName){
+  static loadYaml(fileName) {
     // Get document, or throw exception 
     let configDoc = {}
     try {
@@ -27,7 +28,7 @@ class yamlUtils {
     return configDoc;
   }
 
-  static saveYaml(dumpObj, fileName){
+  static saveYaml(dumpObj, fileName) {
     try {
       fs.writeFileSync(fileName, yaml.dump(dumpObj));
     } catch (e) {
@@ -35,11 +36,18 @@ class yamlUtils {
     }
   }
 
-  static modifyImage(tenant, application, environment, service, newImage) {
-    const fileName = "./" + tenant + "/" + application + "/" + environment + "/images.yaml"
+  static modifyImage(tenant, application, environment, service, newImage, baseFolder) {
+    const fileName = path.join(
+      baseFolder,
+      tenant,
+      application,
+      environment,
+      "/images.yaml"
+    );
+
     let imageFile = yamlUtils.loadYaml(fileName);
 
-    if (typeof imageFile[service] == 'undefined'){
+    if (typeof imageFile[service] == 'undefined') {
       throw new Error("Error: no service " + service + " found in file " + fileName);
     }
 

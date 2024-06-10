@@ -9,6 +9,7 @@ const io = __nccwpck_require__(6734);
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
+        this.baseFolder = prInputs.baseFolder;
         this.sourceBranch = sourceBranch;
         this.tenant = prInputs.tenant;
         this.application = prInputs.application;
@@ -86,7 +87,7 @@ class PullRequestBuilder {
     async createPRBranchFrom(targetBranch) {
         //CREATE BRANCH or RESET IT IF IT ALREADY EXISTS
         await exec.exec("git stash");
-        await exec.exec("git checkout main");
+        await exec.exec(`git checkout ${this.sourceBranch}`);
         await exec.exec(`git reset --hard origin/${targetBranch}`);
         try {
             await exec.exec("git fetch origin " + this.branchName);
@@ -102,7 +103,7 @@ class PullRequestBuilder {
 
     updateImageInFile(yamlUtils) {
         //MODIFY SERVICES IMAGE
-        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage);
+        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage, this.baseFolder);
         if (oldImageName === this.newImage) {
             throw new Error('The image we were trying to update has not changed!')
         }
@@ -112,9 +113,9 @@ class PullRequestBuilder {
     async sedUpdatedImageFileToOrigin() {
         //COMMIT LOCAL CHANGES
         await exec.exec("git add .");
-        try{
+        try {
             await exec.exec('git commit -m "feat: Image value updated to latest version"');
-        }catch(e){
+        } catch (e) {
             console.log(e)
             throw new Error('Unable to commit file!')
         }
@@ -168,7 +169,7 @@ class PullRequestBuilder {
         let autoMerge = false
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment)
-            if(autoMerge) {
+            if (autoMerge) {
                 await ghClient.mergePr(prNumber);
             } else {
                 console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
@@ -192,7 +193,8 @@ module.exports = PullRequestBuilder;
  * All the inputs needed to update an image via PR
  */
 class PullRequestInputs {
-    constructor(tenant, application, environment, service, newImage, reviewers = []) {
+    constructor(baseFolder, tenant, application, environment, service, newImage, reviewers = []) {
+        this.baseFolder = baseFolder;
         this.tenant = tenant;
         this.application = application;
         this.environment = environment;
@@ -28725,24 +28727,25 @@ module.exports = IOUtils;
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const yaml = __nccwpck_require__(1917);
-const fs   = __nccwpck_require__(7147);
+const fs = __nccwpck_require__(7147);
+const path = __nccwpck_require__(1017);
 
 class yamlUtils {
 
   static determineAutoMerge(tenant, application, environment) {
-    
+
     const path = "./" + tenant + "/" + application + "/" + environment + "/"
-    
+
     //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(path)) {
       return (fs.existsSync(path + "AUTO_MERGE"))
     } else {
-      throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);  
+      throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);
     }
- 
+
   }
 
-  static loadYaml(fileName){
+  static loadYaml(fileName) {
     // Get document, or throw exception 
     let configDoc = {}
     try {
@@ -28753,7 +28756,7 @@ class yamlUtils {
     return configDoc;
   }
 
-  static saveYaml(dumpObj, fileName){
+  static saveYaml(dumpObj, fileName) {
     try {
       fs.writeFileSync(fileName, yaml.dump(dumpObj));
     } catch (e) {
@@ -28761,11 +28764,18 @@ class yamlUtils {
     }
   }
 
-  static modifyImage(tenant, application, environment, service, newImage) {
-    const fileName = "./" + tenant + "/" + application + "/" + environment + "/images.yaml"
+  static modifyImage(tenant, application, environment, service, newImage, baseFolder) {
+    const fileName = path.join(
+      baseFolder,
+      tenant,
+      application,
+      environment,
+      "/images.yaml"
+    );
+
     let imageFile = yamlUtils.loadYaml(fileName);
 
-    if (typeof imageFile[service] == 'undefined'){
+    if (typeof imageFile[service] == 'undefined') {
       throw new Error("Error: no service " + service + " found in file " + fileName);
     }
 
@@ -29555,12 +29565,13 @@ async function run() {
 
     for (const inputs of input_matrix.images) {
       const prInputs = new PullRequestInputs(
-          inputs['tenant'],
-          inputs['app'],
-          inputs['env'],
-          inputs['service_name'],
-          inputs['image'],
-          inputs['reviewers']
+        inputs['base_folder'] ?? "",
+        inputs['tenant'],
+        inputs['app'],
+        inputs['env'],
+        inputs['service_name'],
+        inputs['image'],
+        inputs['reviewers'],
       )
       core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())

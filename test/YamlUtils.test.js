@@ -1,5 +1,5 @@
 const yamlUtils = require('../utils/YamlUtils.js');
-
+const basePath = "";
 
 test('determineAutoMerge file not found', () => {
   expect(() => {
@@ -37,21 +37,21 @@ test('loadYaml failure', () => {
 
 test('modifyImage correct execution', () => {
   // you need 2 changes of each to make sure it changes
-  yamlUtils.modifyImage("fixtures/tenant1", "release1", "dev", "proxy", "foo/proxy:bar");
+  yamlUtils.modifyImage("fixtures/tenant1", "release1", "dev", "proxy", "foo/proxy:bar", basePath);
   const modImages11dev = yamlUtils.loadYaml('./fixtures/tenant1/release1/dev/images.yaml');
   expect(modImages11dev["proxy"]["image"]).toBe("foo/proxy:bar");
 
-  const oldValue1 = yamlUtils.modifyImage("fixtures/tenant1", "release1", "dev", "proxy", "foo/proxy:dev");
+  const oldValue1 = yamlUtils.modifyImage("fixtures/tenant1", "release1", "dev", "proxy", "foo/proxy:dev", basePath);
   expect(oldValue1).toBe("foo/proxy:bar");
 
   const images11devRestored = yamlUtils.loadYaml('./fixtures/tenant1/release1/dev/images.yaml');
   expect(images11devRestored["proxy"]["image"]).toBe("foo/proxy:dev");
 
-  yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "app-server", "foo/common:pro");
+  yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "app-server", "foo/common:pro", basePath);
   const modimages2Bpro = yamlUtils.loadYaml('./fixtures/tenant2/releaseB/pro/images.yaml');
   expect(modimages2Bpro["app-server"]["image"]).toBe("foo/common:pro");
 
-  const oldValue2 = yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "app-server", "foo/common:bar" );
+  const oldValue2 = yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "app-server", "foo/common:bar", basePath);
   expect(oldValue2).toBe("foo/common:pro");
   const images2BproRestore = yamlUtils.loadYaml('./fixtures/tenant2/releaseB/pro/images.yaml');
   expect(images2BproRestore["app-server"]["image"]).toBe("foo/common:bar");
@@ -61,38 +61,13 @@ test('modifyImage correct execution', () => {
 
 test('modifyImage failure', () => {
   expect(() => {
-    yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "production", "app-server", "foo/common:bar");
+    yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "production", "app-server", "foo/common:bar", basePath);
   }).toThrow("Error trying to read yaml file: ");
 
   expect(() => {
-    yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "inexistent_service", "foo/common:bar");
-  }).toThrow("Error: no service inexistent_service found in file ./fixtures/tenant2/releaseB/pro/images.yaml");
+    yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "inexistent_service", "foo/common:bar", basePath);
+  }).toThrow("Error: no service inexistent_service found in file fixtures/tenant2/releaseB/pro/images.yaml");
 
-  
 
-});
-
-/*
-test('modifyServicesImage correct execution', () => {
-  // you need 2 changes of each to make sure it changes
-  const services = ["app-server", "app-api", "app-client"];
-  const newImage = "foo/common:pre";
-  const recievedImage1 = yamlUtils.modifyServicesImage("fixtures/tenant2", "releaseB", "pre", services, newImage);
-  expect(recievedImage1).toEqual(["foo/common:bar", "foo/common:bar", "foo/common:bar"]);
-  const modImagesDesApp1 = yamlUtils.loadYaml('./fixtures/tenant2/releaseB/pre/images.yaml');
-
-  expect(modImagesDesApp1["app-client"]["image"]).toEqual("foo/common:pre");
-  expect(modImagesDesApp1["app-server"]["image"]).toEqual("foo/common:pre");
-  expect(modImagesDesApp1["app-api"]["image"]).toEqual("foo/common:pre");
-
-  const restoreImage = "foo/common:bar";
-  const recievedImage2 = yamlUtils.modifyServicesImage("fixtures/tenant2", "releaseB", "pre", services, restoreImage);
-  expect(recievedImage2).toEqual(["foo/common:pre", "foo/common:pre", "foo/common:pre"]);
-  const iemagesDesApp1Restore = yamlUtils.loadYaml('./fixtures/tenant2/releaseB/pre/images.yaml');
-
-  expect(iemagesDesApp1Restore["app-client"]["image"]).toEqual("foo/common:bar");
-  expect(iemagesDesApp1Restore["app-server"]["image"]).toEqual("foo/common:bar");
-  expect(iemagesDesApp1Restore["app-api"]["image"]).toEqual("foo/common:bar");
 
 });
-*/

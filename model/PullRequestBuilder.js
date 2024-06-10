@@ -3,6 +3,7 @@ const io = require('../utils/IOUtils');
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
+        this.baseFolder = prInputs.baseFolder;
         this.sourceBranch = sourceBranch;
         this.tenant = prInputs.tenant;
         this.application = prInputs.application;
@@ -80,7 +81,7 @@ class PullRequestBuilder {
     async createPRBranchFrom(targetBranch) {
         //CREATE BRANCH or RESET IT IF IT ALREADY EXISTS
         await exec.exec("git stash");
-        await exec.exec("git checkout main");
+        await exec.exec(`git checkout ${this.sourceBranch}`);
         await exec.exec(`git reset --hard origin/${targetBranch}`);
         try {
             await exec.exec("git fetch origin " + this.branchName);
@@ -96,7 +97,7 @@ class PullRequestBuilder {
 
     updateImageInFile(yamlUtils) {
         //MODIFY SERVICES IMAGE
-        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage);
+        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage, this.baseFolder);
         if (oldImageName === this.newImage) {
             throw new Error('The image we were trying to update has not changed!')
         }
@@ -106,9 +107,9 @@ class PullRequestBuilder {
     async sedUpdatedImageFileToOrigin() {
         //COMMIT LOCAL CHANGES
         await exec.exec("git add .");
-        try{
+        try {
             await exec.exec('git commit -m "feat: Image value updated to latest version"');
-        }catch(e){
+        } catch (e) {
             console.log(e)
             throw new Error('Unable to commit file!')
         }
@@ -162,7 +163,7 @@ class PullRequestBuilder {
         let autoMerge = false
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment)
-            if(autoMerge) {
+            if (autoMerge) {
                 await ghClient.mergePr(prNumber);
             } else {
                 console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
