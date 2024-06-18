@@ -48,7 +48,7 @@ class PullRequestBuilder {
                 prNumber = await this.openNewPullRequest(ghClient, oldImage)
                 core.info(io.bGreen('> Created PR number: ') + prNumber);
             } else {
-                core.info(io.yellow(`> There is an open PR already for branch ${this.branchName}, pr_number=${prNumber}!`));
+                core.info(io.yellow(`> There is already a pull-request open for branch ${this.branchName}, pr_number=${prNumber}!`));
             }
             // 5. ADD PR LABELS and REVIEWERS
             core.info(io.bGreen('> Adding labels and PR reviewers...'))
