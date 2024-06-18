@@ -27,51 +27,50 @@ class PullRequestBuilder {
             core.info(io.bGreen(`> Branch ${this.branchName} already existed. It was re-set to origin/${this.sourceBranch}!`))
         }
 
-        // 2. MODIFY SERVICES' IMAGE INSIDE images.yaml
         let oldImage
         try {
+            // 2. MODIFY SERVICES' IMAGE INSIDE images.yaml
             oldImage = this.updateImageInFile(yamlUtils)
             core.info(io.bGreen(`> File updated! Old image value: ${oldImage}`));
-        } catch (e) {
-            core.info(io.yellow(`Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`));
-            core.info(io.yellow(`Image did not change! old=newImage=${this.newImage} `))
-            return
-        }
-
-        // 3. PUSH CHANGES TO ORIGIN
-        try {
+            // 3. PUSH CHANGES TO ORIGIN
             core.info(io.bGreen(`> Pushing changes...`));
             await this.sedUpdatedImageFileToOrigin()
+            // 4. CREATE PULL REQUEST IF IT DOES NOT EXIST
+            let prNumber = await ghClient.branchHasOpenPR(this.branchName)
+            if (prNumber === 0) {
+                prNumber = await this.openNewPullRequest(ghClient, oldImage)
+                core.info(io.bGreen('> Created PR number: ') + prNumber);
+            } else {
+                core.info(io.yellow(`> There is an open PR already for branch ${this.branchName}, pr_number=${prNumber}!`));
+            }
+            // 5. ADD PR LABELS and REVIEWERS
+            core.info(io.bGreen('> Adding labels and PR reviewers...'))
+            try {
+                await this.setPRLabels(ghClient, prNumber)
+                const reviewers = await this.addPRReviewers(ghClient, prNumber)
+                core.info(io.bGreen(`> Added reviewers: ${JSON.stringify(reviewers)}`));
+            } catch (e) {
+                core.info(e);
+                core.info(io.yellow('> No reviewers were added!'));
+            }
+            // 6. DETERMINE AUTO_MERGE AND TRY TO MERGE
+            if (await this.tryToMerge(ghClient, yamlUtils, prNumber)) {
+                core.info(io.bGreen('> Successfully automatically merged PR number: ' + prNumber));
+            } else {
+                core.info(io.yellow('> PR was not merged automatically'));
+            }
         } catch (e) {
-            core.info(io.red(`ERROR TRYING TO COMMIT CHANGES!! Error: ${e}`));
+            if (e instanceof yamlUtils.ImageVersionAlreadyUpdatedError) {
+                core.info(io.yellow(`Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`));
+                core.info(io.yellow(`Image did not change! old=newImage=${this.newImage} `))
+                return
+            }
+            else {
+                core.info(io.red(`ERROR TRYING TO UPDATE IMAGE!! Error: ${e}`));
+                throw e;
+            }
         }
 
-        // 4. CREATE PULL REQUEST
-        let prNumber = await ghClient.branchHasOpenPR(this.branchName)
-        if (prNumber === 0) {
-            prNumber = await this.openNewPullRequest(ghClient, oldImage)
-            core.info(io.bGreen('> Created PR number: ') + prNumber);
-        } else {
-            core.info(io.yellow(`> There is an open PR already for branch ${this.branchName}, pr_number=${prNumber}!`));
-        }
-
-        // 5. ADD PR LABELS and REVIEWERS
-        core.info(io.bGreen('> Adding labels and PR reviewers...'))
-        try {
-            await this.setPRLabels(ghClient, prNumber)
-            const reviewers = await this.addPRReviewers(ghClient, prNumber)
-            core.info(io.bGreen(`> Added reviewers: ${JSON.stringify(reviewers)}`));
-        } catch (e) {
-            core.info(e);
-            core.info(io.yellow('> No reviewers were added!'));
-        }
-
-        // 6. DETERMINE AUTO_MERGE AND TRY TO MERGE
-        if (await this.tryToMerge(ghClient, yamlUtils, prNumber)) {
-            core.info(io.bGreen('> Successfully merged PR number: ' + prNumber));
-        } else {
-            core.info(io.yellow('> PR was not merged'));
-        }
     }
 
     /**
@@ -98,9 +97,6 @@ class PullRequestBuilder {
     updateImageInFile(yamlUtils) {
         //MODIFY SERVICES IMAGE
         const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage, this.baseFolder);
-        if (oldImageName === this.newImage) {
-            throw new Error('The image we were trying to update has not changed!')
-        }
         return oldImageName
     }
 
@@ -171,6 +167,7 @@ class PullRequestBuilder {
             return autoMerge // this returns true only if the pr has been merged
         } catch (e) {
             console.log('Problem reading AUTO_MERGE marker file. Setting auto-merge to false. ' + e)
+            return false;
         }
     }
 }

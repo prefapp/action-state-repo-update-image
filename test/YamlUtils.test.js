@@ -1,4 +1,4 @@
-const yamlUtils = require('../utils/YamlUtils.js');
+const { yamlUtils } = require('../utils/YamlUtils.js');
 const basePath = "";
 
 test('determineAutoMerge file not found', () => {
@@ -31,7 +31,11 @@ test('loadYaml correct execution', () => {
 test('loadYaml failure', () => {
   expect(() => {
     yamlUtils.loadYaml('./fixtures/tenant2/releaseC/images.yaml')
-  }).toThrow('Error trying to read yaml file: ./fixtures/tenant2/releaseC/images.yaml');
+  }).toThrow('Yaml file ./fixtures/tenant2/releaseC/images.yaml does not exist');
+
+  expect(() => {
+    yamlUtils.loadYaml('./fixtures/tenant2/releaseA/dev/images.yaml')
+  }).toThrow('Error trying to load yaml file: ./fixtures/tenant2/releaseA/dev/images.yaml');
 });
 
 
@@ -62,7 +66,7 @@ test('modifyImage correct execution', () => {
 test('modifyImage failure', () => {
   expect(() => {
     yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "production", "app-server", "foo/common:bar", basePath);
-  }).toThrow("Error trying to read yaml file: ");
+  }).toThrow("Yaml file fixtures/tenant2/releaseB/production/images.yaml does not exist");
 
   expect(() => {
     yamlUtils.modifyImage("fixtures/tenant2", "releaseB", "pro", "inexistent_service", "foo/common:bar", basePath);
