@@ -6,6 +6,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 const exec = __nccwpck_require__(1514);
 const io = __nccwpck_require__(6734);
+const { ImageVersionAlreadyUpdatedError } = __nccwpck_require__(5252);
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
@@ -66,7 +67,7 @@ class PullRequestBuilder {
                 core.info(io.yellow('> PR was not merged automatically'));
             }
         } catch (e) {
-            if (e instanceof yamlUtils.ImageVersionAlreadyUpdatedError) {
+            if (e instanceof ImageVersionAlreadyUpdatedError) {
                 core.info(io.yellow(`Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`));
                 core.info(io.yellow(`Image did not change! old=newImage=${this.newImage} `))
                 return
