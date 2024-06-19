@@ -1,4 +1,4 @@
 proxy:
-  image: foo/proxy:dev
+  image: {{foo/proxy:dev}}
 dns:
-  image: foo/dns:bar
+  image: !foo/dns:bar
