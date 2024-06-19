@@ -1,0 +1,27 @@
+name: Run Release Please
+on:
+    push:
+        branches:
+            - main
+jobs:
+    release-please:
+      name: Release Please Manifest
+      runs-on: ubuntu-latest
+      steps:
+
+        # We cannot use GITHUB_TOKEN so it would not trigger build and retag workflow
+        # after creating the release.
+        - uses: actions/create-github-app-token@v1
+          id: generate-token
+          with:
+            app-id: ${{ vars.FIRESTARTR_GITHUB_APP_ID }}
+            private-key: ${{ secrets.FIRESTARTR_GITHUB_APP_PEM }}
+            owner: ${{ github.repository_owner }}
+
+        - uses: google-github-actions/release-please-action@v4
+          id: release
+          with:
+            target-branch: main
+            release-type: node
+            prerelease: true
+            token: ${{ steps.generate-token.outputs.token }}
