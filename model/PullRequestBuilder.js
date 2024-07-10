@@ -42,7 +42,9 @@ class PullRequestBuilder {
                 prNumber = await this.openNewPullRequest(ghClient, oldImage)
                 core.info(io.bGreen('> Created PR number: ') + prNumber);
             } else {
-                core.info(io.yellow(`> There is already a pull-request open for branch ${this.branchName}, pr_number=${prNumber}!`));
+                
+                
+                core.info(io.yellow(`> There is already a pull-request open for branch ${this.branchName}, pr_number=${prNumber}, updating it...`));
             }
             // 5. ADD PR LABELS and REVIEWERS
             core.info(io.bGreen('> Adding labels and PR reviewers...'))
@@ -127,6 +129,21 @@ class PullRequestBuilder {
         prBody += `Updated image \`${oldImageName}\` to \`${this.newImage}\` in service \`${this.service}\``;
 
         return await ghClient.createPr(this.branchName, prTitle, prBody)
+    }
+
+    /**
+     * Updates an existing PR with the new image value
+     * @param ghClient
+     * @param prNumber
+     * @param oldImageName
+     * @returns {Promise<void>}
+     */
+    async updatePullRequest(ghClient, prNumber, oldImageName) {
+        const prTitle = `📦 Service image update \`${this.newImage}\``;
+        let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
+        prBody += `Updated image \`${oldImageName}\` to \`${this.newImage}\` in service \`${this.service}\``;
+
+        return await ghClient.updatePr(this.branchName, prTitle, prBody, prNumber)
     }
 
     /**

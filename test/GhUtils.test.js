@@ -20,6 +20,7 @@ let octokit = {
       create: jest.fn().mockResolvedValue({data: {number: 42}}),
       requestReviewers: jest.fn().mockResolvedValue("reviewers added"),
       merge: jest.fn().mockResolvedValue("merged"),
+      update: jest.fn().mockResolvedValue("updated")
     }
   }
 }
@@ -46,6 +47,21 @@ test('ghUtils prCreate', async () => {
                               repo: "repo_name",
                               base: "rama_default",
                               head: "feature/new-image",
+                              title: "pr title",
+                              body: "pr body"
+                            })
+  ,);
+});
+
+test('ghUtils prUpdate', async () => {
+  let ghClient = new ghUtils(context, octokit);
+  const ghResponse = await ghClient.updatePr(666, "pr title", "pr body");
+  expect(ghResponse).toBe("updated");
+  expect(octokit.rest.pulls.update).toHaveBeenCalledWith(
+    expect.objectContaining({
+                              owner: "login_dueño",
+                              repo: "repo_name",
+                              pull_number: 666,
                               title: "pr title",
                               body: "pr body"
                             })

@@ -30,6 +30,17 @@ class ghUtils {
     return ghResponse.data.number;
   }
 
+  async updatePr(prNumber, title, body) {
+    const prInputs = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+      pull_number: prNumber,
+      title: title,
+      body: body
+    }
+    return await this.octokit.rest.pulls.update(prInputs);
+  }
+
   async prAddReviewers(prNumber, reviewers){
     const addReviewersInputs = {
       owner: this.repoOwner,
