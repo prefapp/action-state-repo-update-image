@@ -43,7 +43,7 @@ class PullRequestBuilder {
                 core.info(io.bGreen('> Created PR number: ') + prNumber);
             } else {                
                 core.info(io.yellow(`> There is already a pull-request open for branch ${this.branchName}, pr_number=${prNumber}, updating it...`));
-                this.updatePullRequest(ghClient, prNumber, oldImage)
+                await this.updatePullRequest(ghClient, prNumber, oldImage)
                 core.info(io.bGreen('> Updated PR number: ') + prNumber);
             }
             // 5. ADD PR LABELS and REVIEWERS
@@ -143,7 +143,7 @@ class PullRequestBuilder {
         let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
         prBody += `Updated image \`${oldImageName}\` to \`${this.newImage}\` in service \`${this.service}\``;
 
-        return await ghClient.updatePr(prNumber, prTitle, prBody)
+        await ghClient.updatePr(prNumber, prTitle, prBody)
     }
 
     /**
