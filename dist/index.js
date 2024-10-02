@@ -28641,8 +28641,12 @@ class ghUtils {
     const inputs = {
       owner: this.repoOwner,
       repo: this.repoName,
+      per_page: 100,
     }
-    const ghResponse = await this.octokit.rest.issues.listLabelsForRepo(inputs);
+    const ghResponse = await this.octokit.paginate(
+      this.octokit.rest.issues.listLabelsForRepo,
+      inputs
+    )
     return ghResponse.data.map(labelObj => labelObj.name);
   }
 
