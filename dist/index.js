@@ -28650,10 +28650,31 @@ class ghUtils {
     return ghResponse.data.map(labelObj => labelObj.name);
   }
 
+  async checkIfRepoLabelExists(label) {
+    const variables = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+      labelName: label,
+    }
+    const graphQLQuery = `query($owner: String!, $repo: String!, $labelName: String!){
+      repository(owner: $owner, name: $repo){
+        labels(query: $labelName, first: 1) {
+          edges {
+            node {
+              name
+            }
+          }
+        }
+      }
+    }`;
+    const ghResponse = await this.octokit.graphql(graphQLQuery, variables);
+    return ghResponse.data.length > 0;
+  }
+
   async createAndSetLabels(prNumber, labels) {
-    const repoLabels = await this.getRepoLabels()
     for (const label of labels) {
-      if (!repoLabels.includes(label)) {
+      const labelExists = await this.checkIfRepoLabelExists(label)
+      if (!labelExists) {
         await this.createLabel(label)
       }
     }
