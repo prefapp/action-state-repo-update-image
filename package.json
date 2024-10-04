@@ -1,6 +1,6 @@
 {
   "name": "javascript-action",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "description": "JavaScript Action Template",
   "engines": {
     "npm": ">=8.0.0 <9.0.0",
