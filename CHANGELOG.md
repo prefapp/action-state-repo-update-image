@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.4.1](https://github.com/prefapp/action-state-repo-update-image/compare/v4.4.0...v4.4.1) (2024-10-04)
+
+
+### Bug Fixes
+
+* Compiled app ([f19ba4c](https://github.com/prefapp/action-state-repo-update-image/commit/f19ba4c6396fcc6ecb0ac7ab795be724ad91336f))
+* Merge pull request [#144](https://github.com/prefapp/action-state-repo-update-image/issues/144) from prefapp/fix/unused-parameter ([f4edc80](https://github.com/prefapp/action-state-repo-update-image/commit/f4edc806d5f89fcb2f7e80c743877f247e3b6207))
+* Removed unused parameter added to PullRequestBuilder ([5cd592b](https://github.com/prefapp/action-state-repo-update-image/commit/5cd592b751ed5e341e097334d47c65afb147515c))
+* Unused parameter ([f4edc80](https://github.com/prefapp/action-state-repo-update-image/commit/f4edc806d5f89fcb2f7e80c743877f247e3b6207))
+
 ## [4.4.0](https://github.com/prefapp/action-state-repo-update-image/compare/v4.3.1...v4.4.0) (2024-10-04)
 
 
