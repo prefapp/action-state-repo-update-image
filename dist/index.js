@@ -55,7 +55,7 @@ class PullRequestBuilder {
             // 5. ADD PR LABELS and REVIEWERS
             core.info(io.bGreen('> Adding labels and PR reviewers...'))
             try {
-                await this.setPRLabels(ghClient, prNumber, core)
+                await this.setPRLabels(ghClient, prNumber)
                 const reviewers = await this.addPRReviewers(ghClient, prNumber)
                 core.info(io.bGreen(`> Added reviewers: ${JSON.stringify(reviewers)}`));
             } catch (e) {
