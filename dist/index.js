@@ -55,7 +55,7 @@ class PullRequestBuilder {
             // 5. ADD PR LABELS and REVIEWERS
             core.info(io.bGreen('> Adding labels and PR reviewers...'))
             try {
-                await this.setPRLabels(ghClient, prNumber)
+                await this.setPRLabels(ghClient, prNumber, core)
                 const reviewers = await this.addPRReviewers(ghClient, prNumber)
                 core.info(io.bGreen(`> Added reviewers: ${JSON.stringify(reviewers)}`));
             } catch (e) {
@@ -28668,7 +28668,8 @@ class ghUtils {
       }
     }`;
     const ghResponse = await this.octokit.graphql(graphQLQuery, variables);
-    return ghResponse.data.length > 0;
+    console.log(ghResponse);
+    return ghResponse.length > 0;
   }
 
   async createAndSetLabels(prNumber, labels) {

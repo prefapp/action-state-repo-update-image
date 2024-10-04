@@ -121,7 +121,8 @@ class ghUtils {
       }
     }`;
     const ghResponse = await this.octokit.graphql(graphQLQuery, variables);
-    return ghResponse.data.length > 0;
+    console.log(ghResponse);
+    return ghResponse.length > 0;
   }
 
   async createAndSetLabels(prNumber, labels) {
