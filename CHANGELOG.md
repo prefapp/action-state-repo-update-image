@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.2](https://github.com/prefapp/action-state-repo-update-image/compare/v4.4.1...v4.4.2) (2024-10-08)
+
+
+### Bug Fixes
+
+* Add support for base path with AUTO_MERGE [#148](https://github.com/prefapp/action-state-repo-update-image/issues/148) ([2124894](https://github.com/prefapp/action-state-repo-update-image/commit/21248942790692ef27b36309fcaac42edb9e269f))
+
 ## [4.4.1](https://github.com/prefapp/action-state-repo-update-image/compare/v4.4.0...v4.4.1) (2024-10-04)
 
 
