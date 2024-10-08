@@ -182,7 +182,7 @@ class PullRequestBuilder {
     async tryToMerge(ghClient, yamlUtils, prNumber) {
         let autoMerge = false
         try {
-            autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment)
+            autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, this.baseFolder)
             if (autoMerge) {
                 await ghClient.mergePr(prNumber);
             } else {
@@ -28798,13 +28798,20 @@ class ImageVersionAlreadyUpdatedError extends Error {
 
 class yamlUtils {
 
-  static determineAutoMerge(tenant, application, environment) {
+  static determineAutoMerge(tenant, application, environment, basePath = "") {
 
-    const appPath = "./" + tenant + "/" + application + "/" + environment + "/"
+    const appPath = path.join(
+      basePath,
+      tenant,
+      application,
+      environment
+    )
+
+    console.log(appPath)
 
     //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(appPath)) {
-      return (fs.existsSync(appPath + "AUTO_MERGE"))
+      return (fs.existsSync(path.join(appPath, "AUTO_MERGE")))
     } else {
       throw new Error("Enviroment " + environment + " not found for application " + application + " for tenant " + tenant);
     }
