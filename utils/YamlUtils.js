@@ -19,9 +19,15 @@ class ImageVersionAlreadyUpdatedError extends Error {
 
 class yamlUtils {
 
-  static determineAutoMerge(tenant, application, environment) {
+  static determineAutoMerge(tenant, application, environment, basePath) {
 
-    const appPath = "./" + tenant + "/" + application + "/" + environment + "/"
+    const appPath = path.join(
+      __dirname,
+      basePath,
+      tenant,
+      application,
+      environment
+    )
 
     //console.log("PATH IS: " + path + "AUTO_MERGE")
     if (fs.existsSync(appPath)) {

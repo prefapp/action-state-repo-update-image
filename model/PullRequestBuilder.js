@@ -176,7 +176,7 @@ class PullRequestBuilder {
     async tryToMerge(ghClient, yamlUtils, prNumber) {
         let autoMerge = false
         try {
-            autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment)
+            autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, this.baseFolder)
             if (autoMerge) {
                 await ghClient.mergePr(prNumber);
             } else {
