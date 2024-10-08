@@ -23,7 +23,6 @@ class yamlUtils {
 
     const appPath = path.join(
       __dirname,
-      basePath,
       tenant,
       application,
       environment
