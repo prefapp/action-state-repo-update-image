@@ -9,11 +9,11 @@ class PullRequestBuilder {
         this.tenant = prInputs.tenant;
         this.application = prInputs.application;
         this.environment = prInputs.environment;
-        this.service = prInputs.service;
+        this.serviceNameList = prInputs.serviceNameList;
         this.newImage = prInputs.newImage;
         this.reviewers = prInputs.reviewers;
         //It is important ot create consistent branch names as the action's idempotency relies on the branch name as the key
-        this.branchName = `automated/update-image-${prInputs.tenant}-${prInputs.application}-${prInputs.environment}-${prInputs.service}`
+        this.branchName = `automated/update-image-${prInputs.tenant}-${prInputs.application}-${prInputs.environment}`
     }
 
     /**
@@ -28,22 +28,25 @@ class PullRequestBuilder {
             core.info(io.bGreen(`> Branch ${this.branchName} already existed. It was re-set to origin/${this.sourceBranch}!`))
         }
 
-        let oldImage
+        const oldImagesList = {}
         try {
             // 2. MODIFY SERVICES' IMAGE INSIDE images.yaml
-            oldImage = this.updateImageInFile(yamlUtils)
-            core.info(io.bGreen(`> File updated! Old image value: ${oldImage}`));
+            this.serviceNameList.forEach(service => {
+                const oldImageValue = this.updateImageInFile(yamlUtils, service);
+                oldImagesList[service] = oldImageValue;
+            });
+            core.info(io.bGreen(`> File updated! Old images value: ${oldImagesList}`));
             // 3. PUSH CHANGES TO ORIGIN
             core.info(io.bGreen(`> Pushing changes...`));
             await this.sedUpdatedImageFileToOrigin()
             // 4. CREATE PULL REQUEST IF IT DOES NOT EXIST
             let prNumber = await ghClient.branchHasOpenPR(this.branchName)
             if (prNumber === 0) {
-                prNumber = await this.openNewPullRequest(ghClient, oldImage)
+                prNumber = await this.openNewPullRequest(ghClient, oldImagesList)
                 core.info(io.bGreen('> Created PR number: ') + prNumber);
             } else {                
                 core.info(io.yellow(`> There is already a pull-request open for branch ${this.branchName}, pr_number=${prNumber}, updating it...`));
-                await this.updatePullRequest(ghClient, prNumber, oldImage)
+                await this.updatePullRequest(ghClient, prNumber, oldImagesList)
                 core.info(io.bGreen('> Updated PR number: ') + prNumber);
             }
             // 5. ADD PR LABELS and REVIEWERS
@@ -97,9 +100,16 @@ class PullRequestBuilder {
     }
 
 
-    updateImageInFile(yamlUtils) {
+    updateImageInFile(yamlUtils, service) {
         //MODIFY SERVICES IMAGE
-        const oldImageName = yamlUtils.modifyImage(this.tenant, this.application, this.environment, this.service, this.newImage, this.baseFolder);
+        const oldImageName = yamlUtils.modifyImage(
+            this.tenant,
+            this.application,
+            this.environment,
+            service,
+            this.newImage,
+            this.baseFolder
+        );
         return oldImageName
     }
 
@@ -123,10 +133,10 @@ class PullRequestBuilder {
      * @param oldImageName
      * @returns {Promise<number|*>} Returns 0 if the branch already had a PR, and the new pr number otherwise
      */
-    async openNewPullRequest(ghClient, oldImageName) {
+    async openNewPullRequest(ghClient, oldImagesList) {
         const prTitle = `📦 Service image update \`${this.newImage}\``;
         let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
-        prBody += `Updated image \`${oldImageName}\` to \`${this.newImage}\` in service \`${this.service}\``;
+        prBody += `Updated image \`${oldImagesList}\` to \`${this.newImage}\` in service \`${this.serviceNameList}\``;
 
         return await ghClient.createPr(this.branchName, prTitle, prBody)
     }
@@ -138,10 +148,10 @@ class PullRequestBuilder {
      * @param oldImageName
      * @returns {Promise<void>}
      */
-    async updatePullRequest(ghClient, prNumber, oldImageName) {
+    async updatePullRequest(ghClient, prNumber, oldImagesList) {
         const prTitle = `📦 Service image update \`${this.newImage}\``;
         let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
-        prBody += `Updated image \`${oldImageName}\` to \`${this.newImage}\` in service \`${this.service}\``;
+        prBody += `Updated image \`${oldImagesList}\` to \`${this.newImage}\` in service \`${this.serviceNameList}\``;
 
         await ghClient.updatePr(prNumber, prTitle, prBody)
     }
