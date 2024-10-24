@@ -38,9 +38,27 @@ class PullRequestBuilder {
         try {
             // 2. MODIFY SERVICES' IMAGE INSIDE images.yaml
             this.serviceNameList.forEach(service => {
-                const oldImageValue = this.updateImageInFile(yamlUtils, service);
-                oldImagesList[service] = oldImageValue;
+                try {
+                    const oldImageValue = this.updateImageInFile(yamlUtils, service);
+                    oldImagesList[service] = oldImageValue;
+                } catch (e) {
+                    if (e instanceof ImageVersionAlreadyUpdatedError) {
+                        core.info(io.yellow(
+                            `Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`
+                        ));
+                        core.info(io.yellow(
+                            `Image did not change! old=newImage=${this.newImage}`
+                        ));
+                    }
+                    else {
+                        core.info(io.red(
+                            `ERROR TRYING TO UPDATE IMAGE!! Error: ${e}`
+                        ));
+                        throw e;
+                    }
+                }
             });
+            if(!oldImagesList) return;
             core.info(io.bGreen(`> File updated! Old images value: ${oldImagesList}`));
             // 3. PUSH CHANGES TO ORIGIN
             core.info(io.bGreen(`> Pushing changes...`));
@@ -72,15 +90,8 @@ class PullRequestBuilder {
                 core.info(io.yellow('> PR was not merged automatically'));
             }
         } catch (e) {
-            if (e instanceof ImageVersionAlreadyUpdatedError) {
-                core.info(io.yellow(`Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`));
-                core.info(io.yellow(`Image did not change! old=newImage=${this.newImage} `))
-                return
-            }
-            else {
-                core.info(io.red(`ERROR TRYING TO UPDATE IMAGE!! Error: ${e}`));
-                throw e;
-            }
+            core.info(io.red(`ERROR TRYING TO UPDATE IMAGE!! Error: ${e}`));
+            throw e;
         }
 
     }
