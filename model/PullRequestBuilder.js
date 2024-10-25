@@ -152,12 +152,10 @@ class PullRequestBuilder {
         const prTitle = `📦 Service image update \`${this.newImage}\``;
         let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
         prBody += `Updated images:\n`
-        const updatedServicesList = []
         for (const [service, oldImage] of Object.entries(oldImagesList)) {
             prBody += `- \`${service}\`: \`${oldImage}\`\n`;
-            updatedServicesList.push(service);
         }
-        prBody += `\nto \`${this.newImage}\` in services \`${updatedServicesList.join(', ')}\``;
+        prBody += `\nto \`${this.newImage}\``;
 
         return { prTitle, prBody }
     }
