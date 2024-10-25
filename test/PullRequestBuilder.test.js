@@ -3,20 +3,22 @@ const PullRequestBuilder = require('../model/PullRequestBuilder.js')
 test('Test constructor', async () => {
   const prInputs = {
     tenant: 'tenant',
+    baseFolder: 'basefolder',
     application: 'application',
     environment: 'environment',
-    service: 'service',
+    serviceNameList: ['service'],
     newImage: 'newImage',
     reviewers: 'reviewers'
   }
   expect(new PullRequestBuilder(prInputs, 'master'))
     .toEqual({
       "application": "application",
-      "branchName": "automated/update-image-tenant-application-environment-service",
+      "branchName": "automated/update-image-tenant-application-environment",
+      "baseFolder": "basefolder",
       "environment": "environment",
       "newImage": "newImage",
       "reviewers": "reviewers",
-      "service": "service",
+      "serviceNameList": ["service"],
       "sourceBranch": "master",
       "tenant": "tenant",
     });
