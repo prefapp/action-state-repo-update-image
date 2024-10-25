@@ -58,7 +58,7 @@ class PullRequestBuilder {
                     }
                 }
             });
-            if(!oldImagesList) return;
+            if(!oldImagesList || Object.keys(oldImagesList).length === 0) return;
             core.info(io.bGreen('> File updated! Old images value:'));
             for (const [service, oldImage] of Object.entries(oldImagesList)) {
                 core.info(io.bGreen(`${service}: ${oldImage}`));
