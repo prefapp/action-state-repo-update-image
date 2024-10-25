@@ -156,7 +156,7 @@ class PullRequestBuilder {
     async openNewPullRequest(ghClient, oldImagesList) {
         const prTitle = `📦 Service image update \`${this.newImage}\``;
         let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
-        prBody += `Updated image \`${oldImagesList}\` to \`${this.newImage}\` in service \`${this.serviceNameList}\``;
+        prBody += `Updated image \`${oldImagesList}\` to \`${this.newImage}\` for services \`${this.serviceNameList.join(', ')}\``;
 
         return await ghClient.createPr(this.branchName, prTitle, prBody)
     }
@@ -171,7 +171,7 @@ class PullRequestBuilder {
     async updatePullRequest(ghClient, prNumber, oldImagesList) {
         const prTitle = `📦 Service image update \`${this.newImage}\``;
         let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
-        prBody += `Updated image \`${oldImagesList}\` to \`${this.newImage}\` in service \`${this.serviceNameList}\``;
+        prBody += `Updated image \`${oldImagesList}\` to \`${this.newImage}\` in service \`${this.serviceNameList.join(', ')}\``;
 
         await ghClient.updatePr(prNumber, prTitle, prBody)
     }
