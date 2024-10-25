@@ -38,7 +38,7 @@ class PullRequestBuilder {
                 } catch (e) {
                     if (e instanceof ImageVersionAlreadyUpdatedError) {
                         core.info(io.yellow(
-                            `Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${this.service}`
+                            `Skipping PR for ${this.tenant}/${this.application}/${this.environment}/${service}`
                         ));
                         core.info(io.yellow(
                             `Image did not change! old=newImage=${this.newImage}`
@@ -53,7 +53,10 @@ class PullRequestBuilder {
                 }
             });
             if(!oldImagesList) return;
-            core.info(io.bGreen(`> File updated! Old images value: ${oldImagesList}`));
+            core.info(io.bGreen('> File updated! Old images value:'));
+            for (const [service, oldImage] of Object.entries(oldImagesList)) {
+                core.info(io.bGreen(`${service}: ${oldImage}`));
+            }
             // 3. PUSH CHANGES TO ORIGIN
             core.info(io.bGreen(`> Pushing changes...`));
             await this.sedUpdatedImageFileToOrigin()
