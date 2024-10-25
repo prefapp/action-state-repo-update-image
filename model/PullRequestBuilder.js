@@ -57,21 +57,27 @@ class PullRequestBuilder {
             for (const [service, oldImage] of Object.entries(oldImagesList)) {
                 core.info(io.bGreen(`${service}: ${oldImage}`));
             }
+
             // 3. PUSH CHANGES TO ORIGIN
             core.info(io.bGreen(`> Pushing changes...`));
             await this.sedUpdatedImageFileToOrigin()
+
             // 4. CREATE PULL REQUEST IF IT DOES NOT EXIST
             let prNumber = await ghClient.branchHasOpenPR(this.branchName)
+            const { prTitle, prBody } = this.getPrTitleAndBody(ghClient, prNumber, oldImagesList)
+
             if (prNumber === 0) {
-                prNumber = await this.openNewPullRequest(ghClient, oldImagesList)
+                prNumber = await this.openNewPullRequest(ghClient, prTitle, prBody)
                 core.info(io.bGreen('> Created PR number: ') + prNumber);
             } else {                
                 core.info(io.yellow(`> There is already a pull-request open for branch ${this.branchName}, pr_number=${prNumber}, updating it...`));
-                await this.updatePullRequest(ghClient, prNumber, oldImagesList)
+                await this.updatePullRequest(ghClient, prNumber, prTitle, prBody)
                 core.info(io.bGreen('> Updated PR number: ') + prNumber);
             }
+
             // 5. ADD PR LABELS and REVIEWERS
             core.info(io.bGreen('> Adding labels and PR reviewers...'))
+
             try {
                 await this.setPRLabels(ghClient, prNumber)
                 const reviewers = await this.addPRReviewers(ghClient, prNumber)
@@ -80,6 +86,7 @@ class PullRequestBuilder {
                 core.info(e);
                 core.info(io.yellow('> No reviewers were added!'));
             }
+
             // 6. DETERMINE AUTO_MERGE AND TRY TO MERGE
             if (await this.tryToMerge(ghClient, yamlUtils, prNumber)) {
                 core.info(io.bGreen('> Successfully automatically merged PR number: ' + prNumber));
@@ -141,21 +148,25 @@ class PullRequestBuilder {
 
     }
 
-    /**
-     * Creates a GitHub pull request from the current branch, it only sets title and body
-     * @param ghClient
-     * @param oldImageName
-     * @returns {Promise<number|*>} Returns 0 if the branch already had a PR, and the new pr number otherwise
-     */
-    async openNewPullRequest(ghClient, oldImagesList) {
+    getPrTitleAndBody(ghClient, prNumber, oldImagesList) {
         const prTitle = `📦 Service image update \`${this.newImage}\``;
         let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
         prBody += `Updated images:\n`
         for (const [service, oldImage] of Object.entries(oldImagesList)) {
             prBody += `- \`${service}\`: \`${oldImage}\`\n`;
         }
-        prBody += `\nto \`${this.newImage}\` in service \`${this.serviceNameList.join(', ')}\``;
+        prBody += `\nto \`${this.newImage}\` in services \`${this.serviceNameList.join(', ')}\``;
 
+        return { prTitle, prBody }
+    }
+
+    /**
+     * Creates a GitHub pull request from the current branch, it only sets title and body
+     * @param ghClient
+     * @param oldImageName
+     * @returns {Promise<number|*>} Returns 0 if the branch already had a PR, and the new pr number otherwise
+     */
+    async openNewPullRequest(ghClient, prTitle, prBody) {
         return await ghClient.createPr(this.branchName, prTitle, prBody)
     }
 
@@ -166,15 +177,7 @@ class PullRequestBuilder {
      * @param oldImageName
      * @returns {Promise<void>}
      */
-    async updatePullRequest(ghClient, prNumber, oldImagesList) {
-        const prTitle = `📦 Service image update \`${this.newImage}\``;
-        let prBody = `🤖 Automated PR created in [this](${ghClient.getActionUrl()}) workflow execution \n\n`;
-        prBody += `Updated images:\n`
-        for (const [service, oldImage] of Object.entries(oldImagesList)) {
-            prBody += `- ${service}: ${oldImage}\n`;
-        }
-        prBody += `to \`${this.newImage}\` in service \`${this.serviceNameList.join(', ')}\``;
-
+    async updatePullRequest(ghClient, prNumber, prTitle, prBody) {
         await ghClient.updatePr(prNumber, prTitle, prBody)
     }
 
