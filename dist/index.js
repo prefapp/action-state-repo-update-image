@@ -7,6 +7,8 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 const exec = __nccwpck_require__(1514);
 const io = __nccwpck_require__(6734);
 const { ImageVersionAlreadyUpdatedError } = __nccwpck_require__(5252);
+const github = __nccwpck_require__(5438);
+
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
@@ -214,7 +216,7 @@ class PullRequestBuilder {
 
             console.log('Waiting for checks to complete...');
 
-            for await (const response of client.paginate.iterator(client.rest.checks.listForRef, {
+            for await (const response of client.octokit.paginate.iterator(client.rest.checks.listForRef, {
                 owner: "firestartr-test",
                 repo: "helm-state",
                 ref: "automated/update-image-test-tenant-aws-web-service-dev-webService",

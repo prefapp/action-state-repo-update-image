@@ -1,6 +1,8 @@
 const exec = require('@actions/exec');
 const io = require('../utils/IOUtils');
 const { ImageVersionAlreadyUpdatedError } = require('../utils/YamlUtils');
+const github = require('@actions/github');
+
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
@@ -208,7 +210,7 @@ class PullRequestBuilder {
 
             console.log('Waiting for checks to complete...');
 
-            for await (const response of client.paginate.iterator(client.rest.checks.listForRef, {
+            for await (const response of client.octokit.paginate.iterator(client.rest.checks.listForRef, {
                 owner: "firestartr-test",
                 repo: "helm-state",
                 ref: "automated/update-image-test-tenant-aws-web-service-dev-webService",
