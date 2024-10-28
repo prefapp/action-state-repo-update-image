@@ -177,7 +177,10 @@ class PullRequestBuilder {
         let autoMerge = false
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, this.baseFolder)
-            if (autoMerge) {
+
+            const isMergeable = await this.canMerge(ghClient, 60000, 5000)
+
+            if (autoMerge && isMergeable) {
                 await ghClient.mergePr(prNumber);
             } else {
                 console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
@@ -187,6 +190,48 @@ class PullRequestBuilder {
             console.log('Problem reading AUTO_MERGE marker file. Setting auto-merge to false. ' + e)
             return false;
         }
+    }
+
+    /**
+     * Determines if the PR has passed the checks and can be merged
+     * @param client - GitHub client
+     * @param timeout - Timeout in milliseconds
+     * @param retryInterval - Interval in milliseconds to retry
+     * @returns {Promise<void>}
+     */
+    async canMerge(client, timeout, retryInterval) {
+
+        const start = Date.now();
+
+        while (Date.now() - start < timeout) {
+            const checkRuns = [];
+
+            for await (const response of client.paginate.iterator(client.rest.checks.listForRef, {
+                owner: "firestartr-test",
+                repo: "helm-state",
+                ref: "automated/update-image-test-tenant-aws-web-service-dev-webService",
+                per_page: 100
+            })) {
+                checkRuns.push(...response.data);
+            }
+
+            // If any check run status is completed and status is failure, then we can't merge
+            if (checkRuns.some(checkRun => checkRun.status === "completed" && checkRun.conclusion === "failure")) {
+                return false;
+            }
+
+            // If all check runs are completed and status is success, then we can merge
+            if (checkRuns.every(checkRun => checkRun.status === "completed" && checkRun.conclusion === "success")) {
+                return true;
+            }
+
+            // Wait for retryInterval before checking again
+            await new Promise(resolve => setTimeout(resolve, retryInterval));
+        }
+
+        // If we reach here, then we have timed out
+        throw new Error("Timed out waiting for checks to complete");
+
     }
 }
 
