@@ -206,6 +206,8 @@ class PullRequestBuilder {
         while (Date.now() - start < timeout) {
             const checkRuns = [];
 
+            console.log('Waiting for checks to complete...');
+
             for await (const response of client.paginate.iterator(client.rest.checks.listForRef, {
                 owner: "firestartr-test",
                 repo: "helm-state",
@@ -217,13 +219,17 @@ class PullRequestBuilder {
 
             // If any check run status is completed and status is failure, then we can't merge
             if (checkRuns.some(checkRun => checkRun.status === "completed" && checkRun.conclusion === "failure")) {
+                console.log('Check runs failed, cannot merge');
                 return false;
             }
 
             // If all check runs are completed and status is success, then we can merge
             if (checkRuns.every(checkRun => checkRun.status === "completed" && checkRun.conclusion === "success")) {
+                console.log('Check runs passed, can merge');
                 return true;
             }
+
+            console.log('Check runs still in progress...');
 
             // Wait for retryInterval before checking again
             await new Promise(resolve => setTimeout(resolve, retryInterval));
