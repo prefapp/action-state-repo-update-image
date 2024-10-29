@@ -24,7 +24,7 @@
           "tenant",
           "app",
           "env",
-          "service_name",
+          "service_name_list",
           "image",
           "reviewers"
         ],
@@ -38,8 +38,12 @@
           "env": {
             "type": "string"
           },
-          "service_name": {
-            "type": "string"
+          "service_name_list": {
+            "type": "array",
+            "title": "string array of service names",
+            "items": {
+              "type": "string"
+            }
           },
           "image": {
             "type": "string"

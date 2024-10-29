@@ -20,7 +20,7 @@ Looking for the `AUTO_MERGE` in the environment directory, it determines if the 
 
 There are now 3 versions of the action. The purpose is the same but the state repo structure and inputs required differ a lot. 
 
-Latest version is `v4`. Please check [OLD_VERSIONS.md](./OLD_VERSIONS.md) if you are looking for instructions on v2 or v3.
+Latest version is `v5`. Please check [OLD_VERSIONS.md](./OLD_VERSIONS.md) if you are looking for instructions on `v2`, `v3` or `v4`.
 
 ### State repo
 In this version of the action, all applications MUST belong to tenants and the automerge is defined by the inclusion of an `AUTO_MERGE` markert file in the desired environment. The structure of the repo is all the action needs to figure out how to update the images.
@@ -69,7 +69,7 @@ state_repo_name
 
 ### Action inputs
 
-You can consume this action by referencing the branch `v4`.
+You can consume this action by referencing the branch `v5`.
 The action must receive a json object with a structure that complies with the [schema](./schemas/state_repo_update_image_schema.json)
 
 Here is an example:
@@ -92,7 +92,7 @@ jobs:
                   "tenant": "tenant1",
                   "app": "release1",
                   "env": "dev",
-                  "service_name": "proxy",
+                  "service_name_list": ["proxy"],
                   "image": "image_proxy:tag",
                   "reviewers": ["GH-User1"]
                 },
@@ -100,7 +100,7 @@ jobs:
                   "tenant": "tenant1",
                   "app": "release1",
                   "env": "pre",
-                  "service_name": "dns",
+                  "service_name_list": ["dns-eu", "dns-usa"],
                   "image": "image_dns:tag",
                   "reviewers": ["GH-User2"]
                 }
