@@ -141,3 +141,7 @@ steps:
         pr_body: PR body #OPTIONAL (not recomended) 
         branch_name: automated/update-image #OPTIONAL
 ```
+
+## v4 - Single service per PR
+
+You can consume this action by referencing the branch `v4`. The only difference between this version and `v5` is the `service_name_list` input: in `v4`, the input is called `service_name` and only a single service per call is supported (so it's a string instead of a list of strings)
