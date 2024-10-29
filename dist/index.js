@@ -216,6 +216,9 @@ class PullRequestBuilder {
 
             console.log('Waiting for checks to complete...');
 
+            // Wait for retryInterval before checking again
+            await new Promise(resolve => setTimeout(resolve, retryInterval));
+
             for await (const response of client.octokit.paginate.iterator(client.octokit.rest.checks.listForRef, {
                 owner: "firestartr-test",
                 repo: "helm-state",
@@ -226,6 +229,12 @@ class PullRequestBuilder {
             }
 
             console.log(`Found ${checkRuns.length} check runs`);
+
+            // If no check runs are present we wait
+            if (checkRuns.length === 0) {
+                console.log('No check runs found, waiting...');
+                continue;
+            }
 
             // If any check run status is completed and status is failure, then we can't merge
             if (checkRuns.some(checkRun => checkRun.status === "completed" && checkRun.conclusion === "failure")) {
@@ -241,8 +250,6 @@ class PullRequestBuilder {
 
             console.log('Check runs still in progress...');
 
-            // Wait for retryInterval before checking again
-            await new Promise(resolve => setTimeout(resolve, retryInterval));
         }
 
         // If we reach here, then we have timed out
