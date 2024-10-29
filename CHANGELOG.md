@@ -1,5 +1,46 @@
 # Changelog
 
+## [5.0.0](https://github.com/prefapp/action-state-repo-update-image/compare/v4.4.2...v5.0.0) (2024-10-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* Single pull request per change to tenant/app/env
+* Merge pull request #151 from prefapp/fix/single-pr-for-multiple-tenant-app-env-changes
+* Updated node version to node20
+* Fixed updating multiple images at once not working if one of those images was already updated
+* Updated validation schema so it works with the new input type
+* Single pull request per change to tenant/app/env
+
+### feat\
+
+* Single pull request per change to tenant/app/env ([b724fdf](https://github.com/prefapp/action-state-repo-update-image/commit/b724fdfbf5b4b1584358c416395a29fb8b3dc845))
+
+
+### Features
+
+* Compiled action ([21c80b0](https://github.com/prefapp/action-state-repo-update-image/commit/21c80b08f2437ff66bf0ecd78353f01cccef8c0e))
+* Merge pull request [#151](https://github.com/prefapp/action-state-repo-update-image/issues/151) from prefapp/fix/single-pr-for-multiple-tenant-app-env-changes ([c68d16c](https://github.com/prefapp/action-state-repo-update-image/commit/c68d16c6f6fee4b82f84757a84e46d471319d097))
+* Single pull request per change to tenant/app/env ([c68d16c](https://github.com/prefapp/action-state-repo-update-image/commit/c68d16c6f6fee4b82f84757a84e46d471319d097))
+* Updated node version to node20 ([53058a5](https://github.com/prefapp/action-state-repo-update-image/commit/53058a5f4b4f14107b95f70b924442ec44a19dac))
+* Updated validation schema so it works with the new input type ([719645b](https://github.com/prefapp/action-state-repo-update-image/commit/719645bb1983e916a0ab58cc23a6271bde71962d))
+
+
+### Bug Fixes
+
+* Actually improved PR body ([1521994](https://github.com/prefapp/action-state-repo-update-image/commit/1521994ecd462699e550f4bca2843a488f7c4a20))
+* Actually improved PR body ([73867af](https://github.com/prefapp/action-state-repo-update-image/commit/73867af678f094e11e6218eeb80270fb36d910f1))
+* Code style improvements ([61fe382](https://github.com/prefapp/action-state-repo-update-image/commit/61fe382c9fa16856e18dbd38c33b052124c70d3c))
+* Fixed action trying to create PR when no files where changed ([1a091ed](https://github.com/prefapp/action-state-repo-update-image/commit/1a091ed15c2e8d6cd3da931ae9ed3f7410c8e647))
+* Fixed tests and linter problems ([e56d81f](https://github.com/prefapp/action-state-repo-update-image/commit/e56d81f30e06af2626768d959ac5dce1416d6f40))
+* Fixed updating multiple images at once not working if one of those images was already updated ([c8eba74](https://github.com/prefapp/action-state-repo-update-image/commit/c8eba7495c2b1a3d26fdf2be05094f380b8c0d80))
+* Improved PR body ([0bf2cd4](https://github.com/prefapp/action-state-repo-update-image/commit/0bf2cd4c35d1fd5decfedcde22e08756c3f56c70))
+* Removed unupdated services from PR body ([651e94c](https://github.com/prefapp/action-state-repo-update-image/commit/651e94c6f59a66ee802c6d9b97a0b4f31264966c))
+* Removed unupdated services from PR body ([66d785c](https://github.com/prefapp/action-state-repo-update-image/commit/66d785c5c49bb099639af66f3f7bfe1b39013a9e))
+* Updated documentation ([6c38124](https://github.com/prefapp/action-state-repo-update-image/commit/6c38124bed7e893271e8c2cb03d2942339a02c25))
+* Updated logs ([1dc355f](https://github.com/prefapp/action-state-repo-update-image/commit/1dc355f5d54e209247cc9e38ffc370cccf99fccd))
+* Updated PR body ([f332e81](https://github.com/prefapp/action-state-repo-update-image/commit/f332e816498faefd578ed8a740a372c6ea9d9697))
+
 ## [4.4.2](https://github.com/prefapp/action-state-repo-update-image/compare/v4.4.1...v4.4.2) (2024-10-08)
 
 
