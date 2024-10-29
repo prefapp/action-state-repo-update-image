@@ -237,6 +237,7 @@ class PullRequestBuilder {
                 return true;
             }
 
+            console.log(`Found ${checkRuns.length} check runs`);
             console.log('Check runs still in progress...');
 
             // Wait for retryInterval before checking again
