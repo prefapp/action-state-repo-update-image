@@ -219,6 +219,8 @@ class PullRequestBuilder {
                 checkRuns.push(...response.data);
             }
 
+            console.log(`Found ${checkRuns.length} check runs`);
+
             // If any check run status is completed and status is failure, then we can't merge
             if (checkRuns.some(checkRun => checkRun.status === "completed" && checkRun.conclusion === "failure")) {
                 console.log('Check runs failed, cannot merge');
@@ -231,7 +233,6 @@ class PullRequestBuilder {
                 return true;
             }
 
-            console.log(`Found ${checkRuns.length} check runs`);
             console.log('Check runs still in progress...');
 
             // Wait for retryInterval before checking again
