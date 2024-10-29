@@ -186,7 +186,7 @@ class PullRequestBuilder {
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, this.baseFolder)
 
-            const isMergeable = await this.canMerge(ghClient, ["PR Verify"], 60000, 5000)
+            const isMergeable = await this.canMerge(ghClient, ["PR Verify"], 180000, 15000)
 
             if (autoMerge && isMergeable) {
                 await ghClient.mergePr(prNumber);
