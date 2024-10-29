@@ -220,15 +220,15 @@ class PullRequestBuilder {
             await new Promise(resolve => setTimeout(resolve, retryInterval));
 
             for await (const response of client.octokit.paginate.iterator(client.octokit.rest.checks.listForRef, {
-                owner: "firestartr-test",
-                repo: "helm-state",
-                ref: "automated/update-image-test-tenant-aws-web-service-dev-webService",
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                ref: this.branchName,
                 per_page: 100
             })) {
                 checkRuns.push(...response.data);
             }
 
-            console.log('Check runs: ', checkRuns);
+            console.log('Check runs: ', checkRuns.map(checkRun => checkRun.name));
 
             // Filter check runs to include only those whose names are in the provided array
             const filteredCheckRuns = checkRuns.filter(checkRun => checkNames.includes(checkRun.name));
