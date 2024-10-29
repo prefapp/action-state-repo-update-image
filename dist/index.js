@@ -186,7 +186,7 @@ class PullRequestBuilder {
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, this.baseFolder)
 
-            const isMergeable = await this.canMerge(ghClient, 60000, 5000)
+            const isMergeable = await this.canMerge(ghClient, ["PR Verify"], 60000, 5000)
 
             if (autoMerge && isMergeable) {
                 await ghClient.mergePr(prNumber);
@@ -207,7 +207,7 @@ class PullRequestBuilder {
      * @param retryInterval - Interval in milliseconds to retry
      * @returns {Promise<void>}
      */
-    async canMerge(client, timeout, retryInterval) {
+    async canMerge(client, checkNames, timeout, retryInterval) {
 
         const start = Date.now();
 
@@ -228,22 +228,28 @@ class PullRequestBuilder {
                 checkRuns.push(...response.data);
             }
 
-            console.log(`Found ${checkRuns.length} check runs`);
+            console.log('Check runs: ', checkRuns);
 
-            // If no check runs are present we wait
-            if (checkRuns.length === 0) {
-                console.log('No check runs found, waiting...');
+            // Filter check runs to include only those whose names are in the provided array
+            const filteredCheckRuns = checkRuns.filter(checkRun => checkNames.includes(checkRun.name));
+
+            console.log('Filtered check runs: ', filteredCheckRuns);
+
+            // Ensure all check names are present in the filtered check runs
+            const allCheckNamesPresent = checkNames.every(name => filteredCheckRuns.some(checkRun => checkRun.name === name));
+            if (!allCheckNamesPresent) {
+                console.log('Not all check names are present, waiting...');
                 continue;
             }
 
             // If any check run status is completed and status is failure, then we can't merge
-            if (checkRuns.some(checkRun => checkRun.status === "completed" && checkRun.conclusion === "failure")) {
+            if (filteredCheckRuns.some(checkRun => checkRun.status === "completed" && checkRun.conclusion === "failure")) {
                 console.log('Check runs failed, cannot merge');
                 return false;
             }
 
             // If all check runs are completed and status is success, then we can merge
-            if (checkRuns.every(checkRun => checkRun.status === "completed" && checkRun.conclusion === "success")) {
+            if (filteredCheckRuns.every(checkRun => checkRun.status === "completed" && checkRun.conclusion === "success")) {
                 console.log('Check runs passed, can merge');
                 return true;
             }
