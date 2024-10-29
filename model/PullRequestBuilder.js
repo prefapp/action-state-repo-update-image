@@ -210,7 +210,7 @@ class PullRequestBuilder {
 
             console.log('Waiting for checks to complete...');
 
-            for await (const response of client.octokit.paginate.iterator(client.rest.checks.listForRef, {
+            for await (const response of client.octokit.paginate.iterator(client.octokit.rest.checks.listForRef, {
                 owner: "firestartr-test",
                 repo: "helm-state",
                 ref: "automated/update-image-test-tenant-aws-web-service-dev-webService",
