@@ -27,7 +27,7 @@ async function run() {
         inputs['tenant'],
         inputs['app'],
         inputs['env'],
-        inputs['service_name'],
+        inputs['service_name_list'],
         inputs['image'],
         JSON.parse(core.getInput('check_names')),
         core.getInput('timeout'),

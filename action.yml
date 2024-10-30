@@ -54,5 +54,5 @@ inputs:
       The time in miliseconds to wait before retrying the checks
     default: "30000"
 runs:
-  using: "node16"
+  using: "node20"
   main: "dist/index.js"
