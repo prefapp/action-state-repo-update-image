@@ -44,7 +44,7 @@ inputs:
   check_names:
     description: >
       The check names to wait for before creating a pull request
-    default: "['PR Verify']"
+    default: '["PR Verify"]'
   timeout:
     description: >
       The time in miliseconds to wait for the checks to complete
