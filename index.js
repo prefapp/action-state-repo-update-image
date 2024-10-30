@@ -29,6 +29,9 @@ async function run() {
         inputs['env'],
         inputs['service_name'],
         inputs['image'],
+        core.getInput('check_names'),
+        core.getInput('timeout'),
+        core.getInput('retry_interval'),
         inputs['reviewers'],
       )
       core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))

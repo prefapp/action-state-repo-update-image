@@ -22,6 +22,9 @@ class PullRequestBuilder {
         this.reviewers = prInputs.reviewers;
         //It is important ot create consistent branch names as the action's idempotency relies on the branch name as the key
         this.branchName = `automated/update-image-${prInputs.tenant}-${prInputs.application}-${prInputs.environment}-${prInputs.service}`
+        this.checkNames = prInputs.checkNames;
+        this.timeout = prInputs.timeout;
+        this.retryInterval = prInputs.retryInterval;
     }
 
     /**
@@ -186,7 +189,7 @@ class PullRequestBuilder {
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, this.baseFolder)
 
-            const isMergeable = await this.canMerge(ghClient, ["PR Verify"], 180000, 15000)
+            const isMergeable = await this.canMerge(ghClient);
 
             if (autoMerge && isMergeable) {
                 await ghClient.mergePr(prNumber);
@@ -203,21 +206,19 @@ class PullRequestBuilder {
     /**
      * Determines if the PR has passed the checks and can be merged
      * @param client - GitHub client
-     * @param timeout - Timeout in milliseconds
-     * @param retryInterval - Interval in milliseconds to retry
      * @returns {Promise<void>}
      */
-    async canMerge(client, checkNames, timeout, retryInterval) {
+    async canMerge(client) {
 
         const start = Date.now();
 
-        while (Date.now() - start < timeout) {
+        while (Date.now() - start < this.timeout) {
             const checkRuns = [];
 
             console.log('Waiting for checks to complete...');
 
             // Wait for retryInterval before checking again
-            await new Promise(resolve => setTimeout(resolve, retryInterval));
+            await new Promise(resolve => setTimeout(resolve, this.retryInterval));
 
             for await (const response of client.octokit.paginate.iterator(client.octokit.rest.checks.listForRef, {
                 owner: github.context.repo.owner,
@@ -231,12 +232,12 @@ class PullRequestBuilder {
             console.log('Check runs: ', checkRuns.map(checkRun => checkRun.name));
 
             // Filter check runs to include only those whose names are in the provided array
-            const filteredCheckRuns = checkRuns.filter(checkRun => checkNames.includes(checkRun.name));
+            const filteredCheckRuns = checkRuns.filter(checkRun => this.checkNames.includes(checkRun.name));
 
-            console.log('Filtered check runs: ', filteredCheckRuns);
+            console.log('Filtered check runs: ', filteredCheckRuns.map(checkRun => checkRun.name));
 
             // Ensure all check names are present in the filtered check runs
-            const allCheckNamesPresent = checkNames.every(name => filteredCheckRuns.some(checkRun => checkRun.name === name));
+            const allCheckNamesPresent = this.checkNames.every(name => filteredCheckRuns.some(checkRun => checkRun.name === name));
             if (!allCheckNamesPresent) {
                 console.log('Not all check names are present, waiting...');
                 continue;
@@ -276,7 +277,7 @@ module.exports = PullRequestBuilder;
  * All the inputs needed to update an image via PR
  */
 class PullRequestInputs {
-    constructor(baseFolder, tenant, application, environment, service, newImage, reviewers = []) {
+    constructor(baseFolder, tenant, application, environment, service, newImage, checkNames, timeout, retryInterval, reviewers = [],) {
         this.baseFolder = baseFolder;
         this.tenant = tenant;
         this.application = application;
@@ -284,6 +285,9 @@ class PullRequestInputs {
         this.service = service;
         this.newImage = newImage;
         this.reviewers = reviewers;
+        this.checkNames = checkNames;
+        this.timeout = timeout;
+        this.retryInterval = retryInterval;
     }
 
     print() {
@@ -29722,6 +29726,9 @@ async function run() {
         inputs['env'],
         inputs['service_name'],
         inputs['image'],
+        core.getInput('check_names'),
+        core.getInput('timeout'),
+        core.getInput('retry_interval'),
         inputs['reviewers'],
       )
       core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))
