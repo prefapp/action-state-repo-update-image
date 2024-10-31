@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.0](https://github.com/prefapp/action-state-repo-update-image/compare/v5.0.0...v5.1.0) (2024-10-31)
+
+
+### Features
+
+* Wait for check runs when auto merging ([#153](https://github.com/prefapp/action-state-repo-update-image/issues/153)) ([014618a](https://github.com/prefapp/action-state-repo-update-image/commit/014618a60af45180fd1b9913470074e8281a1f45))
+
 ## [5.0.0](https://github.com/prefapp/action-state-repo-update-image/compare/v4.4.2...v5.0.0) (2024-10-29)
 
 
