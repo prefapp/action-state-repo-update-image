@@ -7,6 +7,8 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 const exec = __nccwpck_require__(1514);
 const io = __nccwpck_require__(6734);
 const { ImageVersionAlreadyUpdatedError } = __nccwpck_require__(5252);
+const github = __nccwpck_require__(5438);
+
 class PullRequestBuilder {
 
     constructor(prInputs, sourceBranch) {
@@ -20,6 +22,9 @@ class PullRequestBuilder {
         this.reviewers = prInputs.reviewers;
         //It is important ot create consistent branch names as the action's idempotency relies on the branch name as the key
         this.branchName = `automated/update-image-${prInputs.tenant}-${prInputs.application}-${prInputs.environment}`
+        this.checkNames = prInputs.checkNames;
+        this.timeout = prInputs.timeout;
+        this.retryInterval = prInputs.retryInterval;
     }
 
     /**
@@ -58,7 +63,7 @@ class PullRequestBuilder {
                     }
                 }
             });
-            if(!oldImagesList || Object.keys(oldImagesList).length === 0) return;
+            if (!oldImagesList || Object.keys(oldImagesList).length === 0) return;
             core.info(io.bGreen('> File updated! Old images value:'));
             for (const [service, oldImage] of Object.entries(oldImagesList)) {
                 core.info(io.bGreen(`${service}: ${oldImage}`));
@@ -75,7 +80,7 @@ class PullRequestBuilder {
             if (prNumber === 0) {
                 prNumber = await this.openNewPullRequest(ghClient, prTitle, prBody)
                 core.info(io.bGreen('> Created PR number: ') + prNumber);
-            } else {                
+            } else {
                 core.info(io.yellow(`> There is already a pull-request open for branch ${this.branchName}, pr_number=${prNumber}, updating it...`));
                 await this.updatePullRequest(ghClient, prNumber, prTitle, prBody)
                 core.info(io.bGreen('> Updated PR number: ') + prNumber);
@@ -221,7 +226,10 @@ class PullRequestBuilder {
         let autoMerge = false
         try {
             autoMerge = yamlUtils.determineAutoMerge(this.tenant, this.application, this.environment, this.baseFolder)
-            if (autoMerge) {
+
+            const isMergeable = await this.canMerge(ghClient);
+
+            if (autoMerge && isMergeable) {
                 await ghClient.mergePr(prNumber);
             } else {
                 console.log(this.tenant + "/" + this.application + "/" + this.environment + " does NOT allow auto-merge!")
@@ -231,6 +239,67 @@ class PullRequestBuilder {
             console.log('Problem reading AUTO_MERGE marker file. Setting auto-merge to false. ' + e)
             return false;
         }
+    }
+
+    /**
+     * Determines if the PR has passed the checks and can be merged
+     * @param client - GitHub client
+     * @returns {Promise<void>}
+     */
+    async canMerge(client) {
+
+        const start = Date.now();
+
+        while (Date.now() - start < this.timeout) {
+            const checkRuns = [];
+
+            console.log('Waiting for checks to complete...');
+
+            // Wait for retryInterval before checking again
+            await new Promise(resolve => setTimeout(resolve, this.retryInterval));
+
+            for await (const response of client.octokit.paginate.iterator(client.octokit.rest.checks.listForRef, {
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                ref: this.branchName,
+                per_page: 100
+            })) {
+                checkRuns.push(...response.data);
+            }
+
+            console.log('Check runs: ', checkRuns.map(checkRun => checkRun.name));
+
+            // Filter check runs to include only those whose names are in the provided array
+            const filteredCheckRuns = checkRuns.filter(checkRun => this.checkNames.includes(checkRun.name));
+
+            console.log('Filtered check runs: ', filteredCheckRuns.map(checkRun => checkRun.name));
+
+            // Ensure all check names are present in the filtered check runs
+            const allCheckNamesPresent = this.checkNames.every(name => filteredCheckRuns.some(checkRun => checkRun.name === name));
+            if (!allCheckNamesPresent) {
+                console.log('Not all check names are present, waiting...');
+                continue;
+            }
+
+            // If any check run status is completed and status is failure, then we can't merge
+            if (filteredCheckRuns.some(checkRun => checkRun.status === "completed" && checkRun.conclusion === "failure")) {
+                console.log('Check runs failed, cannot merge');
+                return false;
+            }
+
+            // If all check runs are completed and status is success, then we can merge
+            if (filteredCheckRuns.every(checkRun => checkRun.status === "completed" && checkRun.conclusion === "success")) {
+                console.log('Check runs passed, can merge');
+                return true;
+            }
+
+            console.log('Check runs still in progress...');
+
+        }
+
+        // If we reach here, then we have timed out
+        throw new Error("Timed out waiting for checks to complete");
+
     }
 }
 
@@ -246,7 +315,7 @@ module.exports = PullRequestBuilder;
  * All the inputs needed to update an image via PR
  */
 class PullRequestInputs {
-    constructor(baseFolder, tenant, application, environment, serviceNameList, newImage, reviewers = []) {
+    constructor(baseFolder, tenant, application, environment, serviceNameList, newImage, checkNames, timeout, retryInterval, reviewers = [],) {
         this.baseFolder = baseFolder;
         this.tenant = tenant;
         this.application = application;
@@ -254,6 +323,9 @@ class PullRequestInputs {
         this.serviceNameList = serviceNameList;
         this.newImage = newImage;
         this.reviewers = reviewers;
+        this.checkNames = checkNames;
+        this.timeout = timeout;
+        this.retryInterval = retryInterval;
     }
 
     print() {
@@ -29692,6 +29764,9 @@ async function run() {
         inputs['env'],
         inputs['service_name_list'],
         inputs['image'],
+        JSON.parse(core.getInput('check_names')),
+        core.getInput('timeout'),
+        core.getInput('retry_interval'),
         inputs['reviewers'],
       )
       core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))

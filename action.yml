@@ -41,7 +41,18 @@ inputs:
       Also when generating a new PAT, select the least scopes necessary.
       [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     default: ${{ github.token }}
-
+  check_names:
+    description: >
+      The check names to wait for before creating a pull request
+    default: '["PR Verify"]'
+  timeout:
+    description: >
+      The time in miliseconds to wait for the checks to complete
+    default: "300000"
+  retry_interval:
+    description: >
+      The time in miliseconds to wait before retrying the checks
+    default: "30000"
 runs:
   using: "node20"
   main: "dist/index.js"
