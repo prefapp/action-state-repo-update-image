@@ -2,7 +2,7 @@
  * All the inputs needed to update an image via PR
  */
 class PullRequestInputs {
-    constructor(baseFolder, tenant, application, environment, serviceNameList, newImage, checkNames, timeout, retryInterval, reviewers = [],) {
+    constructor(baseFolder, tenant, application, environment, serviceNameList, newImage, checkNames, timeout, retryInterval, reviewers, repositoryCaller) {
         this.baseFolder = baseFolder;
         this.tenant = tenant;
         this.application = application;
@@ -13,6 +13,7 @@ class PullRequestInputs {
         this.checkNames = checkNames;
         this.timeout = timeout;
         this.retryInterval = retryInterval;
+        this.repositoryCaller = repositoryCaller;
     }
 
     print() {

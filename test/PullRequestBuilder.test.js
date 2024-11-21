@@ -8,12 +8,13 @@ test('Test constructor', async () => {
     environment: 'environment',
     serviceNameList: ['service'],
     newImage: 'newImage',
-    reviewers: 'reviewers'
+    reviewers: 'reviewers',
+    repositoryCaller: 'repositoryCaller'
   }
   expect(new PullRequestBuilder(prInputs, 'master'))
     .toEqual({
       "application": "application",
-      "branchName": "automated/update-image-tenant-application-environment",
+      "branchName": "automated/update-image-tenant-application-environment-repositoryCaller",
       "baseFolder": "basefolder",
       "environment": "environment",
       "newImage": "newImage",

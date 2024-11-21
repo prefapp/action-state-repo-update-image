@@ -33,6 +33,7 @@ async function run() {
         core.getInput('timeout'),
         core.getInput('retry_interval'),
         inputs['reviewers'],
+        inputs['repository_caller'],
       )
       core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())
