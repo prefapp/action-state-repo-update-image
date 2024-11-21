@@ -19,7 +19,7 @@ class PullRequestBuilder {
         this.environment = prInputs.environment;
         this.serviceNameList = prInputs.serviceNameList;
         this.newImage = prInputs.newImage;
-        this.reviewers = prInputs.reviewers;
+        this.reviewers = prInputs.reviewers || [];
         //It is important ot create consistent branch names as the action's idempotency relies on the branch name as the key
         this.branchName = `automated/update-image-${prInputs.tenant}-${prInputs.application}-${prInputs.environment}-${prInputs.repositoryCaller}`
         this.checkNames = prInputs.checkNames;
@@ -315,7 +315,7 @@ module.exports = PullRequestBuilder;
  * All the inputs needed to update an image via PR
  */
 class PullRequestInputs {
-    constructor(baseFolder, tenant, application, environment, serviceNameList, newImage, checkNames, timeout, retryInterval, reviewers = [], repositoryCaller) {
+    constructor(baseFolder, tenant, application, environment, serviceNameList, newImage, checkNames, timeout, retryInterval, reviewers, repositoryCaller) {
         this.baseFolder = baseFolder;
         this.tenant = tenant;
         this.application = application;
