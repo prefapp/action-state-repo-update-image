@@ -195,7 +195,23 @@ class PullRequestBuilder {
     async setPRLabels(ghClient, prNumber) {
         return await ghClient.createAndSetLabels(
             prNumber,
-            [`tenant/${this.tenant}`, `app/${this.application}`, `env/${this.environment}`])
+            
+            [
+                
+                `tenant/${this.tenant}`, 
+                
+                `app/${this.application}`, 
+                
+                `env/${this.environment}`
+            
+            ]
+            
+            .concat(
+            
+                this.serviceNameList.map(service => `service/${service}`)
+            
+            )
+        )
     }
 
     async addPRReviewers(ghClient, prNumber) {
