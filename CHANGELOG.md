@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.1](https://github.com/prefapp/action-state-repo-update-image/compare/v5.1.0...v5.1.1) (2024-11-21)
+
+
+### Bug Fixes
+
+* repository caller coordinate ([#155](https://github.com/prefapp/action-state-repo-update-image/issues/155)) ([8d0c2dc](https://github.com/prefapp/action-state-repo-update-image/commit/8d0c2dc6840369b8588e69bd0edc47508d9753d6))
+
 ## [5.1.0](https://github.com/prefapp/action-state-repo-update-image/compare/v5.0.0...v5.1.0) (2024-10-31)
 
 
