@@ -15,7 +15,7 @@ class PullRequestBuilder {
         this.newImage = prInputs.newImage;
         this.reviewers = prInputs.reviewers;
         //It is important ot create consistent branch names as the action's idempotency relies on the branch name as the key
-        this.branchName = `automated/update-image-${prInputs.tenant}-${prInputs.application}-${prInputs.environment}`
+        this.branchName = `automated/update-image-${prInputs.tenant}-${prInputs.application}-${prInputs.environment}-${prInputs.repositoryCaller}`
         this.checkNames = prInputs.checkNames;
         this.timeout = prInputs.timeout;
         this.retryInterval = prInputs.retryInterval;
@@ -195,7 +195,7 @@ class PullRequestBuilder {
     async setPRLabels(ghClient, prNumber) {
         return await ghClient.createAndSetLabels(
             prNumber,
-            [`tenant/${this.tenant}`, `app/${this.application}`, `env/${this.environment}`, `service/${this.service}`])
+            [`tenant/${this.tenant}`, `app/${this.application}`, `env/${this.environment}`])
     }
 
     async addPRReviewers(ghClient, prNumber) {
