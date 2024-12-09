@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.2](https://github.com/prefapp/action-state-repo-update-image/compare/v5.1.1...v5.1.2) (2024-12-09)
+
+
+### Bug Fixes
+
+* Updated node version ([89b81c7](https://github.com/prefapp/action-state-repo-update-image/commit/89b81c7f23752d5c61a923020bc63a686de20490))
+
 ## [5.1.1](https://github.com/prefapp/action-state-repo-update-image/compare/v5.1.0...v5.1.1) (2024-11-21)
 
 
