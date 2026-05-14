@@ -86,6 +86,9 @@ class PullRequestBuilder {
                 core.info(io.bGreen('> Updated PR number: ') + prNumber);
             }
 
+            const prUrl = `https://github.com/${ghClient.repoOwner}/${ghClient.repoName}/pull/${prNumber}`;
+            core.info(io.bGreen('> PR URL: ') + prUrl);
+
             // 5. ADD PR LABELS and REVIEWERS
             core.info(io.bGreen('> Adding labels and PR reviewers...'))
 
@@ -104,6 +107,8 @@ class PullRequestBuilder {
             } else {
                 core.info(io.yellow('> PR was not merged automatically'));
             }
+
+            return prUrl;
         } catch (e) {
             core.info(io.red(`ERROR TRYING TO UPDATE IMAGE!! Error: ${e}`));
             throw e;
@@ -29773,6 +29778,7 @@ async function run() {
     await exec.exec("git config --global user.name github-actions");
     await exec.exec("git config --global user.email github-actions@github.com");
 
+    const prUrls = []
     for (const inputs of input_matrix.images) {
       const prInputs = new PullRequestInputs(
         inputs['base_folder'] ?? "",
@@ -29789,8 +29795,10 @@ async function run() {
       )
       core.info("\n\n️" + io.blueBg("· Updating image for inputs: \n") + io.italic(prInputs.print()))
       const prBuilder = new PullRequestBuilder(prInputs, ghClient.getDefaultBranch())
-      await prBuilder.openPRUpdatingImage(ghClient, yamlUtils, core)
+      const prUrl = await prBuilder.openPRUpdatingImage(ghClient, yamlUtils, core)
+      if (prUrl) prUrls.push(prUrl)
     }
+    core.setOutput('pr_urls', JSON.stringify(prUrls))
 
   } catch (error) {
     core.setFailed(error.message);
