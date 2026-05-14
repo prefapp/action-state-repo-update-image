@@ -80,6 +80,9 @@ class PullRequestBuilder {
                 core.info(io.bGreen('> Updated PR number: ') + prNumber);
             }
 
+            const prUrl = `https://github.com/${ghClient.repoOwner}/${ghClient.repoName}/pull/${prNumber}`;
+            core.info(io.bGreen('> PR URL: ') + prUrl);
+
             // 5. ADD PR LABELS and REVIEWERS
             core.info(io.bGreen('> Adding labels and PR reviewers...'))
 
@@ -98,6 +101,8 @@ class PullRequestBuilder {
             } else {
                 core.info(io.yellow('> PR was not merged automatically'));
             }
+
+            return prUrl;
         } catch (e) {
             core.info(io.red(`ERROR TRYING TO UPDATE IMAGE!! Error: ${e}`));
             throw e;
