@@ -241,8 +241,8 @@ class PullRequestBuilder {
                 return false
             }
 
-            if (ghClient.repoHasAutoMergeEnabled()) {
-                ghClient.enableAutoMerge(prNumber)
+            if (await ghClient.repoHasAutoMergeEnabled()) {
+                await ghClient.enableAutoMerge(prNumber)
                 console.log(`Auto-merge enabled for PR #${prNumber} as repository allows it!`)
                 return true
             } else {
@@ -257,7 +257,6 @@ class PullRequestBuilder {
                     return false;
                 }
             }
-            const isMergeable = await this.canMerge(ghClient, prNumber);
 
         } catch (e) {
             console.log('Error merging PR: ' + e)
@@ -299,7 +298,7 @@ class PullRequestBuilder {
 
             if (!pr.mergeable || pr.mergeable_state !== 'clean') {
                 console.log(`PR cannot be merged. State: ${pr.mergeable_state}`);
-                continue
+                return false;
             }
 
             console.log(`PR mergeability still pending. mergeable=${pr.mergeable}, state=${pr.mergeable_state}`);

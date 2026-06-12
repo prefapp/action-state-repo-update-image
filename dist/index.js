@@ -247,8 +247,8 @@ class PullRequestBuilder {
                 return false
             }
 
-            if (ghClient.repoHasAutoMergeEnabled()) {
-                ghClient.enableAutoMerge(prNumber)
+            if (await ghClient.repoHasAutoMergeEnabled()) {
+                await ghClient.enableAutoMerge(prNumber)
                 console.log(`Auto-merge enabled for PR #${prNumber} as repository allows it!`)
                 return true
             } else {
@@ -263,7 +263,6 @@ class PullRequestBuilder {
                     return false;
                 }
             }
-            const isMergeable = await this.canMerge(ghClient, prNumber);
 
         } catch (e) {
             console.log('Error merging PR: ' + e)
@@ -305,7 +304,7 @@ class PullRequestBuilder {
 
             if (!pr.mergeable || pr.mergeable_state !== 'clean') {
                 console.log(`PR cannot be merged. State: ${pr.mergeable_state}`);
-                continue
+                return false;
             }
 
             console.log(`PR mergeability still pending. mergeable=${pr.mergeable}, state=${pr.mergeable_state}`);
@@ -330,7 +329,7 @@ module.exports = PullRequestBuilder;
  * All the inputs needed to update an image via PR
  */
 class PullRequestInputs {
-    constructor(baseFolder, tenant, application, environment, serviceNameList, newImage, checkNames, timeout, retryInterval, reviewers, repositoryCaller) {
+    constructor(baseFolder, tenant, application, environment, serviceNameList, newImage, timeout, retryInterval, reviewers, repositoryCaller) {
         this.baseFolder = baseFolder;
         this.tenant = tenant;
         this.application = application;
@@ -338,7 +337,6 @@ class PullRequestInputs {
         this.serviceNameList = serviceNameList;
         this.newImage = newImage;
         this.reviewers = reviewers;
-        this.checkNames = checkNames;
         this.timeout = timeout;
         this.retryInterval = retryInterval;
         this.repositoryCaller = repositoryCaller;
@@ -29825,9 +29823,6 @@ async function run() {
         inputs['env'],
         inputs['service_name_list'],
         inputs['image'],
-        JSON.parse(core.getInput('check_names')),
-        core.getInput('timeout'),
-        core.getInput('retry_interval'),
         inputs['reviewers'],
         inputs['repository_caller'],
       )

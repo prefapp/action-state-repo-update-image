@@ -47,7 +47,7 @@ inputs:
     default: "300000"
   retry_interval:
     description: >
-      The time in miliseconds to wait before retrying the checks if enable auto-merge is not configured
+      The time in miliseconds to wait before retrying the checks if en
     default: "30000"
 runs:
   using: "node20"

@@ -72,9 +72,31 @@ test('canMerge returns false when PR mergeable state is not mergeable', async ()
   await expect(prBuilder.canMerge(client, 42)).resolves.toBe(false)
 })
 
+test('canMerge retries when GitHub returns mergeable as null', async () => {
+  const prBuilder = new PullRequestBuilder(baseInputs, 'master')
+  const client = {
+    repoOwner: 'owner',
+    repoName: 'repo',
+    octokit: {
+      rest: {
+        pulls: {
+          get: jest.fn()
+            .mockResolvedValueOnce({ data: { mergeable: null, mergeable_state: 'unknown' } })
+            .mockResolvedValueOnce({ data: { mergeable: true, mergeable_state: 'clean' } })
+        }
+      }
+    }
+  }
+
+  await expect(prBuilder.canMerge(client, 42)).resolves.toBe(true)
+  expect(client.octokit.rest.pulls.get).toHaveBeenCalledTimes(2)
+})
+
 test('tryToMerge passes prNumber to canMerge and merges when allowed', async () => {
   const prBuilder = new PullRequestBuilder(baseInputs, 'master')
   const ghClient = {
+    repoHasAutoMergeEnabled: jest.fn().mockResolvedValue(false),
+    enableAutoMerge: jest.fn().mockResolvedValue(undefined),
     mergePr: jest.fn().mockResolvedValue(undefined)
   }
   const yamlUtils = {
@@ -84,5 +106,6 @@ test('tryToMerge passes prNumber to canMerge and merges when allowed', async () 
 
   await expect(prBuilder.tryToMerge(ghClient, yamlUtils, 77)).resolves.toBe(true)
   expect(prBuilder.canMerge).toHaveBeenCalledWith(ghClient, 77)
+  expect(ghClient.repoHasAutoMergeEnabled).toHaveBeenCalled()
   expect(ghClient.mergePr).toHaveBeenCalledWith(77)
 })
