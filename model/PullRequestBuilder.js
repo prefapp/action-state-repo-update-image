@@ -262,7 +262,7 @@ class PullRequestBuilder {
                 console.log(`Auto-merge enabled for PR #${prNumber} as repository allows it!`)
                 return true
             } else {
-                console.log(`Repository does not have auto-merge enabled, falling back to waiting for PR to be mergable via API...`)
+                console.log(`Repository does not have auto-merge enabled, falling back to waiting for PR to be mergeable via API...`)
                 const isMergeable = await this.canMerge(ghClient, prNumber);
                 if (isMergeable) {
                     await ghClient.mergePr(prNumber);
