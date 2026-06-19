@@ -314,7 +314,7 @@ class PullRequestBuilder {
 
             if (!pr.mergeable || pr.mergeable_state !== 'clean') {
                 console.log(`PR cannot be merged. State: ${pr.mergeable_state}`);
-                return false;
+                continue;
             }
 
             console.log(`PR mergeability still pending. mergeable=${pr.mergeable}, state=${pr.mergeable_state}`);
