@@ -235,7 +235,7 @@ class PullRequestBuilder {
      * @param ghClient
      * @param yamlUtils
      * @param prNumber
-     * @returns {Promise<void>}
+     * @returns {Promise<boolean>} - Returns true if the PR was merged, false otherwise
      */
     async tryToMerge(ghClient, yamlUtils, prNumber) {
         let autoMerge = false
@@ -268,7 +268,7 @@ class PullRequestBuilder {
                 console.log(`Auto-merge enabled for PR #${prNumber} as repository allows it!`)
                 return true
             } else {
-                console.log(`Repository does not have auto-merge enabled, falling back to waiting for checks and merging via API...`)
+                console.log(`Repository does not have auto-merge enabled, falling back to waiting for PR to be mergable via API...`)
                 const isMergeable = await this.canMerge(ghClient, prNumber);
                 if (isMergeable) {
                     await ghClient.mergePr(prNumber);
@@ -281,7 +281,7 @@ class PullRequestBuilder {
             }
 
         } catch (e) {
-            console.log('Error merging PR: ' + e)
+            console.log('Error trying to merge PR: ' + e)
             return false;
         }
     }
@@ -290,7 +290,7 @@ class PullRequestBuilder {
      * Determines if the PR is mergeable based on GitHub's computed mergeable state
      * @param client - GitHub client
      * @param prNumber - Pull request number
-     * @returns {Promise<void>}
+     * @returns {Promise<boolean>} - Returns true if the PR is mergeable, false otherwise
      */
     async canMerge(client, prNumber) {
 
@@ -322,8 +322,6 @@ class PullRequestBuilder {
                 console.log(`PR cannot be merged. State: ${pr.mergeable_state}`);
                 continue;
             }
-
-            console.log(`PR mergeability still pending. mergeable=${pr.mergeable}, state=${pr.mergeable_state}`);
 
         }
         // If we reach here, then we have timed out
