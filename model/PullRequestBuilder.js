@@ -317,8 +317,6 @@ class PullRequestBuilder {
                 continue;
             }
 
-            console.log(`PR mergeability still pending. mergeable=${pr.mergeable}, state=${pr.mergeable_state}`);
-
         }
         // If we reach here, then we have timed out
         return false;
