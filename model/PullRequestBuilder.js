@@ -320,9 +320,8 @@ class PullRequestBuilder {
             console.log(`PR mergeability still pending. mergeable=${pr.mergeable}, state=${pr.mergeable_state}`);
 
         }
-
         // If we reach here, then we have timed out
-        throw new Error("Timed out waiting for PR mergeability to be computed");
+        return false;
 
     }
 }
