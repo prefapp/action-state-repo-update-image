@@ -242,6 +242,22 @@ class PullRequestBuilder {
             }
 
             if (await ghClient.repoHasAutoMergeEnabled()) {
+                /**
+                 * We check it anyways just in case there is no ruleset or branch protection configured,
+                 * if that is the case we cant enable auto-merge and we will merge via API
+                 */
+                const pr = await ghClient.getPr(prNumber)
+
+                if (pr.mergeable === true && pr.mergeable_state === 'clean') {
+                    await ghClient.mergePr(prNumber)
+                    console.log(`PR #${prNumber} is already clean, merged directly instead of enabling auto-merge!`)
+                    return true
+                }
+
+                /**
+                 * Otherwise we just automerge
+                 */
+                console.info(`Repository has auto-merge enabled, enabling auto-merge for PR #${prNumber}...`)
                 await ghClient.enableAutoMerge(prNumber)
                 console.log(`Auto-merge enabled for PR #${prNumber} as repository allows it!`)
                 return true

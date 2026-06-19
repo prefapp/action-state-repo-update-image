@@ -96,6 +96,7 @@ test('tryToMerge passes prNumber to canMerge and merges when allowed', async () 
   const prBuilder = new PullRequestBuilder(baseInputs, 'master')
   const ghClient = {
     repoHasAutoMergeEnabled: jest.fn().mockResolvedValue(false),
+    getPr: jest.fn(),
     enableAutoMerge: jest.fn().mockResolvedValue(undefined),
     mergePr: jest.fn().mockResolvedValue(undefined)
   }
@@ -108,4 +109,22 @@ test('tryToMerge passes prNumber to canMerge and merges when allowed', async () 
   expect(prBuilder.canMerge).toHaveBeenCalledWith(ghClient, 77)
   expect(ghClient.repoHasAutoMergeEnabled).toHaveBeenCalled()
   expect(ghClient.mergePr).toHaveBeenCalledWith(77)
+})
+
+test('tryToMerge merges directly when repo auto-merge is enabled and PR is already clean', async () => {
+  const prBuilder = new PullRequestBuilder(baseInputs, 'master')
+  const ghClient = {
+    repoHasAutoMergeEnabled: jest.fn().mockResolvedValue(true),
+    getPr: jest.fn().mockResolvedValue({ mergeable: true, mergeable_state: 'clean' }),
+    enableAutoMerge: jest.fn().mockResolvedValue(undefined),
+    mergePr: jest.fn().mockResolvedValue(undefined)
+  }
+  const yamlUtils = {
+    determineAutoMerge: jest.fn().mockReturnValue(true)
+  }
+
+  await expect(prBuilder.tryToMerge(ghClient, yamlUtils, 77)).resolves.toBe(true)
+  expect(ghClient.getPr).toHaveBeenCalledWith(77)
+  expect(ghClient.mergePr).toHaveBeenCalledWith(77)
+  expect(ghClient.enableAutoMerge).not.toHaveBeenCalled()
 })

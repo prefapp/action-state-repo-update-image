@@ -248,6 +248,22 @@ class PullRequestBuilder {
             }
 
             if (await ghClient.repoHasAutoMergeEnabled()) {
+                /**
+                 * We check it anyways just in case there is no ruleset or branch protection configured,
+                 * if that is the case we cant enable auto-merge and we will merge via API
+                 */
+                const pr = await ghClient.getPr(prNumber)
+
+                if (pr.mergeable === true && pr.mergeable_state === 'clean') {
+                    await ghClient.mergePr(prNumber)
+                    console.log(`PR #${prNumber} is already clean, merged directly instead of enabling auto-merge!`)
+                    return true
+                }
+
+                /**
+                 * Otherwise we just automerge
+                 */
+                console.info(`Repository has auto-merge enabled, enabling auto-merge for PR #${prNumber}...`)
                 await ghClient.enableAutoMerge(prNumber)
                 console.log(`Auto-merge enabled for PR #${prNumber} as repository allows it!`)
                 return true
@@ -28731,6 +28747,16 @@ class ghUtils {
     return await this.octokit.rest.pulls.merge(mergePrInputs);
   }
 
+  async getPr(prNumber) {
+    const getPrInputs = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+      pull_number: prNumber
+    }
+    const ghResponse = await this.octokit.rest.pulls.get(getPrInputs);
+    return ghResponse.data;
+  }
+
   async setPRLabels(prNumber, labels) {
     const inputs = {
       owner: this.repoOwner,
@@ -28849,6 +28875,7 @@ class ghUtils {
    * Return true if the repository has auto-merge enabled, false otherwise
    */
   async repoHasAutoMergeEnabled() {
+    console.info(`Checking if repository ${this.repoOwner}/${this.repoName} has auto-merge enabled...`)
     const variables = {
       owner: this.repoOwner,
       repoName: this.repoName,
@@ -28859,6 +28886,7 @@ class ghUtils {
       }
     }`;
     const ghResponse = await this.octokit.graphql(graphQLQuery, variables);
+    console.info(`Repository ${this.repoOwner}/${this.repoName} has auto-merge enabled: ${ghResponse.repository.autoMergeAllowed}`)
     return ghResponse.repository.autoMergeAllowed;
   }
 
@@ -29823,6 +29851,8 @@ async function run() {
         inputs['env'],
         inputs['service_name_list'],
         inputs['image'],
+        core.getInput('timeout'),
+        core.getInput('retry_interval'),
         inputs['reviewers'],
         inputs['repository_caller'],
       )

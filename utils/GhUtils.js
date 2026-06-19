@@ -60,6 +60,16 @@ class ghUtils {
     return await this.octokit.rest.pulls.merge(mergePrInputs);
   }
 
+  async getPr(prNumber) {
+    const getPrInputs = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+      pull_number: prNumber
+    }
+    const ghResponse = await this.octokit.rest.pulls.get(getPrInputs);
+    return ghResponse.data;
+  }
+
   async setPRLabels(prNumber, labels) {
     const inputs = {
       owner: this.repoOwner,
@@ -178,6 +188,7 @@ class ghUtils {
    * Return true if the repository has auto-merge enabled, false otherwise
    */
   async repoHasAutoMergeEnabled() {
+    console.info(`Checking if repository ${this.repoOwner}/${this.repoName} has auto-merge enabled...`)
     const variables = {
       owner: this.repoOwner,
       repoName: this.repoName,
@@ -188,6 +199,7 @@ class ghUtils {
       }
     }`;
     const ghResponse = await this.octokit.graphql(graphQLQuery, variables);
+    console.info(`Repository ${this.repoOwner}/${this.repoName} has auto-merge enabled: ${ghResponse.repository.autoMergeAllowed}`)
     return ghResponse.repository.autoMergeAllowed;
   }
 
