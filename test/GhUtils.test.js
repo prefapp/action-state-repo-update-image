@@ -15,15 +15,30 @@ const context = {
 }
 
 let octokit = {
+  graphql: jest.fn()
+    .mockResolvedValueOnce({ repository: { autoMergeAllowed: true } })
+    .mockResolvedValue({ repository: { pullRequest: { id: "PR_node_id" } } }),
   rest: {
     pulls: {
       create: jest.fn().mockResolvedValue({data: {number: 42}}),
+      get: jest.fn().mockResolvedValue({data: {mergeable: true, mergeable_state: 'clean'}}),
       requestReviewers: jest.fn().mockResolvedValue("reviewers added"),
       merge: jest.fn().mockResolvedValue("merged"),
       update: jest.fn().mockResolvedValue("updated")
     }
   }
 }
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  octokit.graphql.mockReset();
+  octokit.graphql.mockResolvedValue({ repository: { autoMergeAllowed: true } });
+  octokit.rest.pulls.create.mockResolvedValue({ data: { number: 42 } });
+  octokit.rest.pulls.get.mockResolvedValue({ data: { mergeable: true, mergeable_state: 'clean' } });
+  octokit.rest.pulls.requestReviewers.mockResolvedValue("reviewers added");
+  octokit.rest.pulls.merge.mockResolvedValue("merged");
+  octokit.rest.pulls.update.mockResolvedValue("updated");
+});
 
 
 test('ghUtils prCreate constructor', () => {
@@ -93,4 +108,72 @@ test('ghUtils mergePr', async () => {
                               pull_number: 666,
                             })
   ,);
+});
+
+test('ghUtils getPr', async () => {
+  let ghClient = new ghUtils(context, octokit);
+  const ghResponse = await ghClient.getPr(666);
+  expect(ghResponse).toMatchObject({ mergeable: true, mergeable_state: 'clean' });
+  expect(octokit.rest.pulls.get).toHaveBeenCalledWith(
+    expect.objectContaining({
+      owner: "login_dueño",
+      repo: "repo_name",
+      pull_number: 666,
+    })
+  );
+});
+
+test('ghUtils repoHasAutoMergeEnabled', async () => {
+  let ghClient = new ghUtils(context, octokit);
+  const ghResponse = await ghClient.repoHasAutoMergeEnabled();
+  expect(ghResponse).toBe(true);
+  expect(octokit.graphql).toHaveBeenCalledWith(
+    `query($owner: String!, $repoName: String!) {
+      repository(owner: $owner, name: $repoName) {
+        autoMergeAllowed
+      }
+    }`,
+    expect.objectContaining({
+      owner: "login_dueño",
+      repoName: "repo_name"
+    })
+  );
+});
+
+test('ghUtils enableAutoMerge', async () => {
+  octokit.graphql
+    .mockResolvedValueOnce({ repository: { pullRequest: { id: "PR_node_id" } } })
+    .mockResolvedValueOnce({ enablePullRequestAutoMerge: { pullRequest: { number: 666 } } });
+
+  let ghClient = new ghUtils(context, octokit);
+  const ghResponse = await ghClient.enableAutoMerge(666);
+  expect(ghResponse).toMatchObject({ enablePullRequestAutoMerge: { pullRequest: { number: 666 } } });
+  expect(octokit.graphql).toHaveBeenNthCalledWith(
+    1,
+    `query($owner: String!, $repoName: String!, $prNumber: Int!) {
+      repository(owner: $owner, name: $repoName) {
+        pullRequest(number: $prNumber) {
+          id
+        }
+      }
+    }`,
+    expect.objectContaining({
+      owner: "login_dueño",
+      repoName: "repo_name",
+      prNumber: 666
+    })
+  );
+  expect(octokit.graphql).toHaveBeenNthCalledWith(
+    2,
+    `mutation($pullRequestId: ID!) {
+      enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
+        pullRequest {
+          number
+        }
+      }
+    }`,
+    expect.objectContaining({
+      pullRequestId: "PR_node_id"
+    })
+  );
 });

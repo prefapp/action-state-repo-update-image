@@ -60,6 +60,16 @@ class ghUtils {
     return await this.octokit.rest.pulls.merge(mergePrInputs);
   }
 
+  async getPr(prNumber) {
+    const getPrInputs = {
+      owner: this.repoOwner,
+      repo: this.repoName,
+      pull_number: prNumber
+    }
+    const ghResponse = await this.octokit.rest.pulls.get(getPrInputs);
+    return ghResponse.data;
+  }
+
   async setPRLabels(prNumber, labels) {
     const inputs = {
       owner: this.repoOwner,
@@ -173,6 +183,53 @@ class ghUtils {
     }
     return 0
   }
+
+  /**
+   * Return true if the repository has auto-merge enabled, false otherwise
+   */
+  async repoHasAutoMergeEnabled() {
+    console.info(`Checking if repository ${this.repoOwner}/${this.repoName} has auto-merge enabled...`)
+    const variables = {
+      owner: this.repoOwner,
+      repoName: this.repoName,
+    }
+    const graphQLQuery = `query($owner: String!, $repoName: String!) {
+      repository(owner: $owner, name: $repoName) {
+        autoMergeAllowed
+      }
+    }`;
+    const ghResponse = await this.octokit.graphql(graphQLQuery, variables);
+    console.info(`Repository ${this.repoOwner}/${this.repoName} has auto-merge enabled: ${ghResponse.repository.autoMergeAllowed}`)
+    return ghResponse.repository.autoMergeAllowed;
+  }
+
+  async enableAutoMerge(prNumber) {
+    const pullRequestIdQuery = `query($owner: String!, $repoName: String!, $prNumber: Int!) {
+      repository(owner: $owner, name: $repoName) {
+        pullRequest(number: $prNumber) {
+          id
+        }
+      }
+    }`;
+    const pullRequestIdResponse = await this.octokit.graphql(pullRequestIdQuery, {
+      owner: this.repoOwner,
+      repoName: this.repoName,
+      prNumber: prNumber,
+    });
+
+    const enableAutoMergeMutation = `mutation($pullRequestId: ID!) {
+      enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
+        pullRequest {
+          number
+        }
+      }
+    }`;
+    return await this.octokit.graphql(enableAutoMergeMutation, {
+      pullRequestId: pullRequestIdResponse.repository.pullRequest.id,
+    });
+  }
+
+
 
 }
 

@@ -29,7 +29,6 @@ async function run() {
         inputs['env'],
         inputs['service_name_list'],
         inputs['image'],
-        JSON.parse(core.getInput('check_names')),
         core.getInput('timeout'),
         core.getInput('retry_interval'),
         inputs['reviewers'],
