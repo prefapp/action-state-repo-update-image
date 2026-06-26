@@ -1,5 +1,22 @@
 # Changelog
 
+## [6.0.0](https://github.com/prefapp/action-state-repo-update-image/compare/v5.1.1...v6.0.0) (2026-06-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* improve auto-merge logic ([#162](https://github.com/prefapp/action-state-repo-update-image/issues/162))
+
+### Features
+
+* improve auto-merge logic ([#162](https://github.com/prefapp/action-state-repo-update-image/issues/162)) ([285ded1](https://github.com/prefapp/action-state-repo-update-image/commit/285ded119729938ac588a4aaedddfda05c413e66))
+
+
+### Bug Fixes
+
+* Updated node version ([7bf366d](https://github.com/prefapp/action-state-repo-update-image/commit/7bf366d04299e8d18e5a75c483b6f29e7463d5fe))
+* Updated node version ([89b81c7](https://github.com/prefapp/action-state-repo-update-image/commit/89b81c7f23752d5c61a923020bc63a686de20490))
+
 ## [5.1.1](https://github.com/prefapp/action-state-repo-update-image/compare/v5.1.0...v5.1.1) (2024-11-21)
 
 
