@@ -50,5 +50,5 @@ inputs:
       The time in milliseconds to wait before retrying the checks if enable auto-merge is not configured
     default: "30000"
 runs:
-  using: "node20"
+  using: "node24"
   main: "dist/index.js"
