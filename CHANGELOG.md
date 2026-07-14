@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.0](https://github.com/prefapp/action-state-repo-update-image/compare/v6.0.0...v6.1.0) (2026-07-14)
+
+
+### Features
+
+* update 4 usage node24 ([1b7c43f](https://github.com/prefapp/action-state-repo-update-image/commit/1b7c43fbb1545607f60a40c5d709a8dbb21c65d2))
+
 ## [6.0.0](https://github.com/prefapp/action-state-repo-update-image/compare/v5.1.1...v6.0.0) (2026-06-26)
 
 
